@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build my_program",
+      "type": "shell",
+      "command": "gcc",
+      "args": [
+        "-g",
+        "src/main.c",
+        "src/Utilis.c",
+        "src/SystemData.c",
+        "src/Queue.c",
+        "src/BinaryTree.c",
+        "src/Cars.c",
+        "src/Port.c",
+        "src/Station.c",
+        "-Iheaders",
+        "-o",
+        "my_program"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "detail": "Compile all project files into my_program"
+    }
+  ]
+}

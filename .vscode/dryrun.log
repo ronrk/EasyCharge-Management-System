@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/ronrock/Documents/לימודים/שנה א/סמסטר ב/c/עבודת סוף שפת סי/finalProject'
+make: Leaving directory `/Users/ronrock/Documents/לימודים/שנה א/סמסטר ב/c/עבודת סוף שפת סי/finalProject'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+

@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug my_program",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/my_program",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "build my_program"
+    },
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/ronrock/Documents/לימודים/שנה א/סמסטר ב/c/עבודת סוף שפת סי/finalProject",
+      "program": "/Users/ronrock/Documents/לימודים/שנה א/סמסטר ב/c/עבודת סוף שפת סי/finalProject/build/Debug/outDebug"
+    }
+  ]
+}

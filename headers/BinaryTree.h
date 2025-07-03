@@ -1,0 +1,44 @@
+#ifndef BINARYTREE_H
+#define BINARYTREE_H
+
+// Function Pointers:
+typedef int(*CompareFunc)(const void*,const void*);
+typedef void(*PrintFunc)(const void*);
+typedef void(*FreeFunc)(void*);
+
+// TreeNode
+typedef struct TreeNode
+{
+  struct TreeNode *left;
+  struct TreeNode *right;
+  void *data;
+}TreeNode;
+
+// configiration for binary tree
+
+typedef struct
+{
+  TreeNode *root;
+  CompareFunc cmp;
+  PrintFunc print;
+  FreeFunc destroy;
+} BinaryTree;
+
+// Functions
+// init a BinaryTree with function pointers
+BinaryTree initTree(CompareFunc cmp,PrintFunc print,FreeFunc destroy);
+
+// insert data to the tree
+TreeNode* insertNode (TreeNode* root, void* data,CompareFunc cmp);
+
+// insert data
+void insertBST(BinaryTree *bst,void *data);
+
+// destroy the tree
+void destroyTree(TreeNode*root,FreeFunc destroy);
+
+// inorder Traversal
+void inorderTraversal(TreeNode* root,PrintFunc print);
+
+
+#endif // BINARYTREE_H
