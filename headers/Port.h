@@ -7,6 +7,7 @@ typedef struct Car Car;
 
 typedef struct Port
 {
+  unsigned int stationId;
   unsigned int num;
   PortType portType;
   PortStatus status;
@@ -17,7 +18,7 @@ typedef struct Port
 
 // functions
 // crate new port
-Port *createPort(unsigned int num, PortType type,PortStatus status,Car* car,Date t);
+Port *createPort(unsigned int stationId,unsigned int num, PortType type, PortStatus status, Car *car, Date t);
 
 // insert port to the head of the list
 Port *insertPort(Port *head, Port *newPort);

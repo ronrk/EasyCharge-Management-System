@@ -9,7 +9,7 @@ int compareCars(const void* a, const void*b){
   const Car *c1 = (const Car*)a;
   const Car *c2 = (const Car*)b;
 
-  printf("Comparing '%s' with '%s'\n", c1->nLicense, c2->nLicense);
+  // printf("Comparing '%s' with '%s'\n", c1->nLicense, c2->nLicense);
   return strcmp(c1->nLicense,c2->nLicense);
 }
 
@@ -66,7 +66,7 @@ Car* parseCarLine(const char* line)
   // nPort *****
   car->pPort = NULL;
 
-  printCar(car);
+  // printCar(car);
   return car;
 };
 
@@ -113,16 +113,15 @@ void carsLoad(BinaryTree* carTree)
     line[strcspn(line,"\r\n")] = '\0';
     Car* car = parseCarLine(line);
     // Add car to the tree
+    
     if(car!=NULL)
       insertBST(carTree,car);
     else {
       fprintf(stderr,"Failed to parse a Car: %s\n",line);
     }
   }
+  
   fclose(file);
-
-  printf("\n--- All Cars in BST In-Oreder Traversal ---\n");
-  inorderTraversal(carTree->root,printCar);
 }
 
 void destroyCar(void *data) {

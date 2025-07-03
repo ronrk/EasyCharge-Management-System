@@ -1,24 +1,40 @@
 #ifndef UTILIS_H
 #define UTILIS_H
+
 #include "BinaryTree.h"
 #include <stdio.h>
 
 // function pointer for parsing line from text file to struct
-typedef void *(*ParseLineFunction)(const char *line);
+typedef void *(*FileLineProcessor)(const char *line,void *context);
+int processFileLines(const char* filename,FileLineProcessor processor,void* context,int skipHeader);
 
+// file loader types
+typedef void *(*ParseLineFunc)(const char* line);
+typedef void (*PostProcessFunction)(void *obj, void *context);
+
+typedef struct
+{
+  const char *filename;          // file to load
+  BinaryTree *targetTree;        // tree to insert to
+  ParseLineFunc parser;      // function to parse a line
+  PostProcessFunction processor; // optional post processor
+  void *context;                 // additional data for process
+} FileLoaderConfig;
+
+int loadDataFile(const FileLoaderConfig *config);
+
+// enums
 typedef enum
 {
   FAST,
   MID,
   SLOW
 } PortType;
-
 typedef enum
 {
   FALSE,
   TRUE
 } BOOL;
-
 typedef enum
 {
   OCC = 1,
@@ -26,12 +42,12 @@ typedef enum
   OOD
 } PortStatus;
 
+// struct
 typedef struct
 {
   double x;
   double y;
 } Coord;
-
 typedef struct
 {
   unsigned int year;
@@ -41,14 +57,12 @@ typedef struct
   unsigned int min;
 } Date;
 
-// handle enums
+// handle enumstoStr and opposite
 const char *portTypeToStr(PortType type);
 PortType parsePortType(const char *str);
 const char *statusToStr(PortStatus status);
 PortStatus parsePortStatus(const char *str);
 
-// skip file headers
-BOOL skipHeader(FILE *file);
 
-void loadFile(const char *path, BinaryTree *tree, ParseLineFunction parser);
+
 #endif // UTILIS_H

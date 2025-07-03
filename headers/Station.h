@@ -19,8 +19,8 @@ struct Station
 };
 
 Station *StationCreate(unsigned int id, const char *name, int nPorts, Coord coord);
-void StationDestroy(void *data);
 
+void StationDestroy(void *data);
 int compareStation(const void *a, const void *b);
 void printStation(const void *data);
 

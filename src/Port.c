@@ -4,12 +4,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-Port *createPort(unsigned int num, PortType type,PortStatus status,Car* car,Date t) {
+Port *createPort(unsigned int stationId,unsigned int num, PortType type,PortStatus status,Car* car,Date t) {
   Port* newPort = malloc(sizeof(Port));
   if(!newPort) {
     perror("Failed alocate memory on Port");
     return NULL;
   }
+  newPort->stationId = stationId;
   newPort->num = num;
   newPort->portType = type;
   newPort->status = status;

@@ -18,9 +18,9 @@ SystemData *loadFiles();
 void destroyFiles(SystemData *sys);
 
 // load individual files
-void stationsLoad(BinaryTree *stationTree);
-void loadPorts(SystemData *sys);
-void loadCars(SystemData *sys);
+int loadStations(BinaryTree *stationTree);
+int loadCars(BinaryTree *carTree);
+int loadPorts(SystemData *sys);
 
 void loadLineOfCars(SystemData *sys);
 #endif
