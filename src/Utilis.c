@@ -1,6 +1,7 @@
 #include "../headers/Utilis.h"
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 
 int loadDataFile(const FileLoaderConfig *config) {
@@ -126,4 +127,14 @@ PortStatus parsePortStatus (const char* str) {
 
   fprintf(stderr,"Unknown port status: '%s'\n",str);
   return FREE;
+}
+
+double calculateDistance(Coord c1, Coord c2) {
+  double dx = c1.x - c2.x;
+  double dy = c1.y - c2.y;
+  return sqrt(dx*dx + dy*dy);
+}
+void clearInputBuffer() {
+  int c;
+  while ((c = getchar()) != '\n' && c != EOF);
 }

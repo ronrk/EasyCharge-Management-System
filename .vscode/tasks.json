@@ -15,6 +15,7 @@
         "src/Cars.c",
         "src/Port.c",
         "src/Station.c",
+        "src/Menu.c",
         "-Iheaders",
         "-o",
         "my_program"

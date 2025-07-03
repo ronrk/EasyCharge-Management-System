@@ -5,22 +5,22 @@
 #include <stdio.h>
 
 // function pointer for parsing line from text file to struct
-typedef void *(*FileLineProcessor)(const char *line,void *context);
-int processFileLines(const char* filename,FileLineProcessor processor,void* context,int skipHeader);
+typedef void *(*FileLineProcessor)(const char *line, void *context);
+int processFileLines(const char *filename, FileLineProcessor processor, void *context, int skipHeader);
 
 // file loader types
-typedef void *(*ParseLineFunc)(const char* line);
+typedef void *(*ParseLineFunc)(const char *line);
 typedef void (*PostProcessFunction)(void *obj, void *context);
 
 typedef struct
 {
-  const char *filename;          // file to load
-  BinaryTree *targetTree;        // tree to insert to
-  ParseLineFunc parser;      // function to parse a line
-  PostProcessFunction processor; // optional post processor
-  void *context;                 // additional data for process
+  const char *filename;             // file to load
+  BinaryTree *targetTree;           // tree to insert to
+  ParseLineFunc parser;             // function to parse a line
+  PostProcessFunction processor;    // optional post processor
+  void *context;                    // additional data for process
   void (*destroyObject)(void *obj); // object destroy
-  int skipHeader;               // skip header?
+  int skipHeader;                   // skip header?
 } FileLoaderConfig;
 
 int loadDataFile(const FileLoaderConfig *config);
@@ -59,12 +59,16 @@ typedef struct
   unsigned int min;
 } Date;
 
+// clear input buffer avoid new line
+void clearInputBuffer();
+
 // handle enumstoStr and opposite
 const char *portTypeToStr(PortType type);
 PortType parsePortType(const char *str);
 const char *statusToStr(PortStatus status);
 PortStatus parsePortStatus(const char *str);
 
-
+// calculate distance
+double calculateDistance(Coord c1, Coord c2);
 
 #endif // UTILIS_H

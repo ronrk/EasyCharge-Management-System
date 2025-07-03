@@ -34,4 +34,7 @@ void printPort(const Port *port);
 void destroyPortList(Port *head);
 void destroyPort(void *data);
 
+// count free ports
+int countFreePorts(const Port* head);
+
 #endif

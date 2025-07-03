@@ -22,8 +22,9 @@ qCar *createQueue(){
 void destroyQueue(qCar*queue) {
   while (!isEmpty(queue))
   {
-    Car *car = dequeue(queue);
+    CarNode* tmp = queue->front;
     queue->front = queue->front->next;
+    free(tmp);
   }
   free(queue);
   
@@ -92,4 +93,18 @@ Car *getFront(const qCar *queue) {
   }
 
   return queue->front->data;
+}
+
+int countQueueItems(const qCar* queue) {
+  if(!queue || !queue->front) return 0;
+
+  int count = 0;
+  CarNode* current = queue->front;
+  while (current)
+  {
+    count++;
+    current = current->next;
+  }
+
+  return count;
 }

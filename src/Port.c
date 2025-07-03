@@ -102,3 +102,14 @@ void destroyPort(void *data){
     free(port);
   }
 }
+
+int countFreePorts(const Port* head) {
+  int count = 0;
+  const Port* current = head;
+  while (current)
+  {
+    if(current->status == FREE) count++;
+    current=current->next;
+  }
+  return count;
+}

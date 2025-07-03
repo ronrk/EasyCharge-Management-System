@@ -25,4 +25,7 @@ Car *dequeue(qCar *queue);
 
 Car *getFront(const qCar *queue);
 void printQueue(const qCar *queue);
+
+// count queue items
+int countQueueItems(const qCar* queue);
 #endif
