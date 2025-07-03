@@ -51,7 +51,7 @@ PortType parsePortType (const char* str) {
   if(strcmp(str,"MID")==0||strcmp(str,"mid")==0||strcmp(str,"Mid")==0) return MID;
 
   // if invalid
-  fprintf(stderr,"Unknowk prototype: '%s'");
+  fprintf(stderr,"Unknowk port type: '%s'",str);
   return -1;
 }
 

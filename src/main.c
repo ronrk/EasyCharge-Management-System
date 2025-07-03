@@ -3,16 +3,39 @@
 #include "../headers/Station.h"
 #include "../headers/Port.h"
 #include "../headers/BinaryTree.h"
+#include "../headers/SystemData.h"
 #include<string.h>
 #include<stdlib.h>
 
 
 int main () {
 
+  printf("\t**** APP Start****\t\n");
+
+  // load all data
+  SystemData *sys = loadFiles();
+  if(!sys){
+    printf("Failed to load the system data\n");
+    return 1;
+  }
+
+  printf("\t**** System data loaded****\t\n");
+
+  // simple statitics
+  int stationCount = countNodes(sys->stationTree.root);
+  // count station
+  printf("Loaded %d Stations\n",stationCount);
+
+  // count cars
+  int carsCounst = countNodes(sys->carTree.root);
+  printf("Loaded %d Cars\n",carsCounst);
+
+  destroyFiles(sys);
+  return 0;
+
 
   // *********TEST*********
 
-  {
 //   // initialize car tree
 //   BinaryTree carTree = initTree(compareCars,printCar,destroyCar);
 
@@ -113,7 +136,6 @@ int main () {
 //   StationDestroy(station);
 //   destroyTree(carTree.root,destroyCar);
   
- }
   
-return 0;
+// return 0;
 }

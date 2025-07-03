@@ -34,5 +34,6 @@ void printPort(const Port *port);
 
 // destroy list
 void destroyPortList(Port *head);
+void destroyPort(Port *port);
 
 #endif

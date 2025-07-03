@@ -43,6 +43,10 @@ Car* parseCarLine(const char* line)
       car->portType = MID;
     else if(strcmp(token,"SLOW")==0)
       car->portType = SLOW;
+    else {
+      fprintf(stderr,"Invalid Port type: %s\n",token);
+      car->portType = SLOW;
+    }
   }
   
   // TotalPayed
@@ -78,7 +82,8 @@ Car *createCar(const char *license, PortType type) {
     perror("Failed alocate memory on createCar\n");
     return NULL;
   }
-  strcpy(car->nLicense,license);
+  strncpy(car->nLicense,license,8);
+  car->nLicense[8] = '\0';
   car->portType = type;
   car->totalPayed = 0.0;
   car->pPort = NULL;
@@ -107,11 +112,12 @@ void carsLoad(BinaryTree* carTree)
   {
     line[strcspn(line,"\r\n")] = '\0';
     Car* car = parseCarLine(line);
-  
     // Add car to the tree
     if(car!=NULL)
       insertBST(carTree,car);
-    
+    else {
+      fprintf(stderr,"Failed to parse a Car: %s\n",line);
+    }
   }
   fclose(file);
 
@@ -132,16 +138,12 @@ Car* searchCar(BinaryTree *carTree,const char *lisence) {
     return NULL;
   }
 
-  Car key;
-  strncpy(key.nLicense,lisence,8);
-  key.nLicense[8] = '\0';
-
   TreeNode *current = carTree->root;
 
   while (current!=NULL)
   {
     Car *car=(Car *)current->data;
-    int cmp= compareCars(&key,car);
+    int cmp= strcmp(lisence,car->nLicense);
 
     if(cmp ==0 ) {
       return car;

@@ -19,7 +19,7 @@ void destroyFiles(SystemData *sys);
 
 // load individual files
 void stationsLoad(BinaryTree *stationTree);
-void portsLoad(BinaryTree *stationTree, BinaryTree *carTree);
+void loadPorts(SystemData *sys);
 void loadCars(SystemData *sys);
 
 void loadLineOfCars(SystemData *sys);

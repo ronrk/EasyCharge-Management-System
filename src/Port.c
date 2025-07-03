@@ -37,9 +37,11 @@ Port *insertPort(Port* head, Port*newPort) {
 Port *findPort(Port *head, unsigned int num){
   Port* current = head;
 
-  while (current->num != num)
+  while (current != NULL)
   {
-    if(current->num == num) return current;
+    if(current->num == num) {
+      return current;
+    }
     current = current->next;
   }
  
@@ -109,9 +111,9 @@ void printPort(const Port* port) {
   printf("Port Number: %u  |  Type: %s  |  Status: %s\n",port->num,portTypeToStr(port->portType),statusToStr(port->status));
 
       if(port->p2Car) {
-        printf("  Charging Car: %s",port->p2Car->nLicense);
+        printf("  Charging Car: %s\n",port->p2Car->nLicense);
 
-        printf("Since: %04d-%02d-%02d %02d:%02d\n",port->tin.day,port->tin.month,port->tin.year,port->tin.hour,port->tin.min);
+        printf("Since: %04d-%02d-%02d %02d:%02d\n",port->tin.year,port->tin.month,port->tin.day,port->tin.hour,port->tin.min);
       } else {
         printf("  Charging Car: None\n");
       }
@@ -127,4 +129,10 @@ void destroyPortList(Port *head) {
     free(tmp);
   }
   
+}
+
+void destroyPort(Port *port){
+  if(port){
+    free(port);
+  }
 }

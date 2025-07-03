@@ -2,11 +2,11 @@
 
 ### Purpose
 
-the program is like EasyCharge it Management app for charge port around the country
+the program is like EasyCharge it Management app for charge port around the country all data should work as ADT
 
 ### Key Components
 
-- Station: a repository of charging stations, contains:
+- Station: a repository of charging stations Handle with BinaryTree, contains:
 - - id: unique whole number
 - - name: pointer to a dynamic string
 - - nPorts: number of ports in the station
@@ -17,7 +17,7 @@ the program is like EasyCharge it Management app for charge port around the coun
 - - right: pointer to right station
 - - left: pointer to left station
 
-- Port: a repository of charging ports, contains:
+- Port: a repository of charging ports Handle with linked list, contains:
 - - num: number of the port whole number
 - - portType: enum I created on Utilis called PortType
 - - status: enum I created on Utilis called PoolStatus
@@ -25,7 +25,7 @@ the program is like EasyCharge it Management app for charge port around the coun
 - - tin: time from the beginning of charge from type Date I created on Utilis
 - - next: pointer to next port on list
 
-- Car: a repository of clients of the company organized by car license
+- Car: a repository of clients of the company organized by car license Handle with BinaryTree
 - - nLicense: unique number of car license string of 9 char will contain only whole number
 - - portType: enum I created on Utilis called PortType
 - - totalPayed: double ; total payed until today
