@@ -32,7 +32,7 @@ BinaryTree initTree(CompareFunc cmp, PrintFunc print, FreeFunc destroy);
 TreeNode *insertNode(TreeNode *root, void *data, CompareFunc cmp);
 
 // insert data
-void insertBST(BinaryTree *bst, void *data);
+int insertBST(BinaryTree *bst, void *data);
 
 // search data
 void *searchBST(BinaryTree *tree, const void *data);

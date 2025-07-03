@@ -22,9 +22,6 @@ void printCar(const void *data);
 // parses line from .txt and create Car
 Car *parseCarLine(const char *line);
 
-// Load all cars from .txt and insert into BTS
-void carsLoad(BinaryTree *carTree);
-
 // create a new car
 Car *createCar(const char *license, PortType type);
 

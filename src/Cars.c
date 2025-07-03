@@ -91,39 +91,6 @@ Car *createCar(const char *license, PortType type) {
   return car;
 }
 
-void carsLoad(BinaryTree* carTree) 
-{
-  FILE *file = fopen("data/Cars.txt","r");
-  if(file == NULL) 
-  {
-    perror("Error opening Cars.txt");
-    return;
-  }
-  
-  char line[256];
-  // SKIP HEADER LINE
-  if(fgets(line,sizeof(line),file) == NULL) {
-    printf("File is Empty\n");
-    fclose(file);
-    return;
-  }
-
-  while (fgets(line,sizeof(line),file))
-  {
-    line[strcspn(line,"\r\n")] = '\0';
-    Car* car = parseCarLine(line);
-    // Add car to the tree
-    
-    if(car!=NULL)
-      insertBST(carTree,car);
-    else {
-      fprintf(stderr,"Failed to parse a Car: %s\n",line);
-    }
-  }
-  
-  fclose(file);
-}
-
 void destroyCar(void *data) {
   if(!data)return;
   Car *car = (Car*)data;

@@ -58,10 +58,10 @@ TreeNode* insertNode (TreeNode* root, void* data,CompareFunc cmp)
 }
 
 // public insert a node
-void insertBST(BinaryTree *tree,void *data) {
+int insertBST(BinaryTree *tree,void *data) {
   if(tree==NULL) {
      printf("[insertBST] ERROR: NULL tree pointer\n");
-    return;
+    return 0;
   }
 
   // printf("[insertBST] Inserting data: %p into tree: %p\n", data, (void*)tree);
@@ -72,6 +72,7 @@ void insertBST(BinaryTree *tree,void *data) {
   tree->root = insertNode(tree->root,data,tree->cmp);
 
   // printf("[insertBST] Insertion completed\n");
+  return 1;
 }
 
 // inorder traversal

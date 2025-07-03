@@ -3,8 +3,9 @@
 // #include "../headers/Utilis.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
-Port *createPort(unsigned int stationId,unsigned int num, PortType type,PortStatus status,Car* car,Date t) {
+Port *createPort(unsigned int stationId,unsigned int num, PortType type,PortStatus status,Car* car,Date t,const char* license) {
   Port* newPort = malloc(sizeof(Port));
   if(!newPort) {
     perror("Failed alocate memory on Port");
@@ -14,7 +15,12 @@ Port *createPort(unsigned int stationId,unsigned int num, PortType type,PortStat
   newPort->num = num;
   newPort->portType = type;
   newPort->status = status;
-  newPort->p2Car = car;
+
+  if(car) newPort->p2Car = car;
+  else NULL;
+  
+  strncpy(newPort->license,license,8);
+  newPort->license[8] = '\0';
 
   // initialize time
   newPort->tin.year=t.year;
@@ -47,48 +53,6 @@ Port *findPort(Port *head, unsigned int num){
   }
  
   return NULL;
-}
-
-
-Port *removePort(Port *head, unsigned int num) {
-  if(head==NULL) return NULL;
-
-  // remove head
-  if(head->num == num) {
-    Port *next = head->next;
-    free(head);
-    return next;
-  }
-
-  Port *prev = head;
-  Port *current = head->next;
-  while (current!=NULL)
-  {
-    if(current->num == num) {
-      prev->next = current->next;
-      free(current);
-      return head;
-    }
-    prev= current;
-    current = current->next;
-  }
-  
-  // cant find port
-  return head;
-}
-
-void printPortbyNum(Port *head, unsigned int num) {
-  const Port* current = head;
-
-  while (current!=NULL)
-  {
-    if(current->num==num) {
-      printPort(current);
-      return;
-    }
-    current = current->next;
-  }
-  printf("Port number %u was not found\n",num);
 }
 
 void printPortList(Port *head) {
@@ -132,7 +96,8 @@ void destroyPortList(Port *head) {
   
 }
 
-void destroyPort(Port *port){
+void destroyPort(void *data){
+  Port* port = (Port*)data;
   if(port){
     free(port);
   }

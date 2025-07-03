@@ -19,6 +19,8 @@ typedef struct
   ParseLineFunc parser;      // function to parse a line
   PostProcessFunction processor; // optional post processor
   void *context;                 // additional data for process
+  void (*destroyObject)(void *obj); // object destroy
+  int skipHeader;               // skip header?
 } FileLoaderConfig;
 
 int loadDataFile(const FileLoaderConfig *config);

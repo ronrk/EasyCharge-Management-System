@@ -1,141 +1,85 @@
-#include<stdio.h>
-#include "../headers/Cars.h"
+
+#include "../headers/SystemData.h"
 #include "../headers/Station.h"
+#include "../headers/Cars.h"
 #include "../headers/Port.h"
 #include "../headers/BinaryTree.h"
-#include "../headers/SystemData.h"
-#include<string.h>
-#include<stdlib.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-int main () {
+void testCriticalLinks(SystemData *sys);
+void printStationDetails(Station *station);
 
-  printf("\t**** APP Start****\t\n");
-
-  // load all data
-  SystemData *sys = loadFiles();
-  if(!sys){
-    printf("Failed to load the system data\n");
-    return 1;
-  }
-
-  printf("\t**** System data loaded****\t\n");
-
-  // simple statitics
-  int stationCount = countNodes(sys->stationTree.root);
-  // count station
-  printf("Loaded %d Stations\n",stationCount);
-
-  // count cars
-  int carsCounst = countNodes(sys->carTree.root);
-  printf("Loaded %d Cars\n",carsCounst);
-
-  destroyFiles(sys);
-  return 0;
-
-
-  // *********TEST*********
-
-//   // initialize car tree
-//   BinaryTree carTree = initTree(compareCars,printCar,destroyCar);
-
-//   // create station
-//   Coord coord = {31.7683,35.2137};
-//   Station *station = StationCreate(101,"Teset Station",0,coord);
-//   if(!station) {
-//     perror("Failed creating Station\n");
-//     return 1;
-//   }
-
-//   // create port and add them to station
-//   Port *p1 = createPort(1,FAST,FREE,NULL,(Date){0});
-//   Port *p2 = createPort(2,MID,FREE,NULL,(Date){0});
-//   Port *p3 = createPort(3,SLOW,FREE,NULL,(Date){0});
-
-//   station->portsList = insertPort(station->portsList,p1);
-//   station->portsList = insertPort(station->portsList,p2);
-//   station->portsList = insertPort(station->portsList,p3);
-
-//   station->nPorts = 3;
-
-//   // Create cars
-//   Car *c1 = createCar("12345678",FAST);
-//   Car *c2 = createCar("9765432",MID);
-//   Car *c3 = createCar("45612378",SLOW);
-//   // enqueue to station queue
-//   enqueue(station->qCar,c1);
-//   enqueue(station->qCar,c2);
-//   enqueue(station->qCar,c3);
-
-//   insertBST(&carTree,c1);
-//   insertBST(&carTree,c2);
-//   insertBST(&carTree,c3);
-
-//   // prints
-//   printf("\n-------Station Info-------\n");
-//   printStation(station);
-
-//   printf("\n-------Ports List-------\n");
-//   printPortList(station->portsList);
-
-//   printf("\n-------Queue of Cars-------\n");
-//   printQueue(station->qCar);
-
-//   printf("\n-------All Cars in Tree In-Order-------\n");
-//   inorderTraversal(carTree.root,printCar);
-
-//   //Charge car and Search Car
-//   const char* targetLicense = "12345678";
-//   Car *foundCar = searchCar(&carTree,targetLicense);
-//   if(foundCar) {
-//     printf("Found Car: \n");
-//     printCar(foundCar);
-
-
-//     // Search same availaible port
-//     Port *current = station->portsList;
-//     while (current!=NULL)
-//     {
-//       if(current->portType == foundCar->portType && current->status == FREE) {
-//         current->status = OCC;
-//         current->p2Car = foundCar;
-//         current->tin = (Date){2025,7,3,10,30};
-        
-//         foundCar->pPort = current;
-//         foundCar->inqueue = FALSE;
-
-//         printf("\nCar '%s' assigned to Port #%u\n",foundCar->nLicense,current->num);
-//         break;
-//       }
-
-//       current=current->next;
-//     }
-//     if(!foundCar->pPort) {
-//       printf("No availabale ports for car '%s'",foundCar->nLicense);
-//     } else {
-//       printf("Car with license '%s' not found\n",targetLicense);
-//     }
+int main() {
+    printf("\n\t**** EV CHARGING SYSTEM START ****\t\n\n");
     
+    // Load all data
+    SystemData *sys = loadFiles();
+    if(!sys) {
+        fprintf(stderr, "CRITICAL ERROR: System initialization failed\n");
+        return 1;
+    }
+    printf("\t**** System data loaded successfully ****\t\n\n");
+    
+    // Basic statistics
+    printf("System Statistics:\n");
+    printf("---------------------------------\n");
+    printf("Stations: %d\n", countNodes(sys->stationTree.root));
+    printf("Cars:     %d\n", countNodes(sys->carTree.root));
+    printf("---------------------------------\n\n");
+    
+    // Critical functionality tests
+    testCriticalLinks(sys);
+    
+    // Resource cleanup
+    destroyFiles(sys);
+    printf("\n\t**** SYSTEM SHUTDOWN COMPLETE ****\t\n");
+    return 0;
+}
 
-//   }
-
-
-//   // prints updates
-//   printf("\n-------Station Update-------\n");
-//   printStation(station);
-
-//   printf("\n-------Ports List Update-------\n");
-//   printPortList(station->portsList);
-
-//   printf("\n-------Queue of Cars Update-------\n");
-//   printQueue(station->qCar);
-
-//   printf("\n-------All Cars in Tree In-Order-------\n");
-//   inorderTraversal(carTree.root,printCar);
-
-//   StationDestroy(station);
-//   destroyTree(carTree.root,destroyCar);
-  
-  
-// return 0;
+void testCriticalLinks(SystemData *sys) {
+    if(!sys || !sys->stationTree.root) {
+        fprintf(stderr, "ERROR: No stations available for testing\n");
+        return;
+    }
+    
+    // Get first station
+    Station *station = (Station*)sys->stationTree.root->data;
+    printf("\nTESTING STATION: %s (ID: %u)\n", station->name, station->id);
+    printf("=========================================\n");
+    
+    // Test 1: Verify port loading
+    if(!station->portsList) {
+        fprintf(stderr, "CRITICAL ERROR: No ports loaded for station\n");
+    } else {
+        printf("Loaded Ports:\n");
+        printPortList(station->portsList);
+    }
+    
+    // Test 2: Verify car-port linking
+    if(station->portsList) {
+        Port *port = station->portsList;
+        printf("\nTesting car-port linking for port %u:\n", port->num);
+        
+        if(port->p2Car) {
+            printf("SUCCESS: Port linked to car %s\n", port->p2Car->nLicense);
+        } else if(strcmp(port->license, "-1") != 0) {
+            fprintf(stderr, "ERROR: Port has license '%s' but no car link!\n", port->license);
+        } else {
+            printf("Port %u has no car assignment (as expected)\n", port->num);
+        }
+    }
+    
+    // Test 3: Verify queue initialization
+    printf("\nTesting station queue:\n");
+    if(!station->qCar) {
+        fprintf(stderr, "CRITICAL ERROR: Station queue not initialized\n");
+    } else {
+        printf("Queue status: %s\n", isEmpty(station->qCar) ? "EMPTY" : "OPERATIONAL");
+        printf("Queue contents:\n");
+        printQueue(station->qCar);
+    }
+    printf("=========================================\n");
 }
