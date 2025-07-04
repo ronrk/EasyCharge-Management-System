@@ -10,16 +10,12 @@ void testSearch(BinaryTree *tree);
 
 int main() {
     SystemData *data = loadFiles();
-    // if(!sys) return 1;
+    
     printf("Stations loaded. Running search tests...\n");
-    printf("\n=== All Stations In Tree ===\n");
-    inorderBST(&data->stationTree, printStation);
-    printf("============================\n");
 
     testSearch(&data->stationTree);
-    // printf("DEBUG: Loaded %d stations\n", countNodes(sys->stationTree.root));
 
-    // mainMenu(sys);
+    mainMenu(data);
 
     destroyFiles(data);
     return 0;

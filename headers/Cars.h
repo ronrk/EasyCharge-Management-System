@@ -31,5 +31,8 @@ void destroyCar(void *data);
 // search for car
 Car* searchCar(BinaryTree *carTree,const char *lisence);
 
+// validate car
+BOOL isLicenseValid(const char* license);
+
 
 #endif

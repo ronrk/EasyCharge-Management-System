@@ -18,5 +18,10 @@ void destroyMenu(MenuSystem *menu);
 
 // 1: Locate nearest station
 void locateNearSt(const BinaryTree *stationTree);
+// 2: Charge Car
+void chargeCar(BinaryTree *stationTree, BinaryTree *carTree);
 
+// TEST OPTIONS
+void displaySystemStatus(const BinaryTree *stationTree, const BinaryTree *carTree);
+void createStationInteractive(BinaryTree* stationTree);
 #endif

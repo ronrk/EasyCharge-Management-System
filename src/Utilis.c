@@ -1,8 +1,69 @@
 #include "../headers/Utilis.h"
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
+
+
+int strEqualsIgnoreCase(const char* a, const char* b){
+  while(*a&&*b) {
+    char ca = *a;
+    char cb = *b;
+
+    // 
+    if(ca >= 'A' && ca <= 'Z') ca += 32;
+    if(cb >= 'A' && cb<= 'Z') cb += 32;
+
+    if(ca!=cb) return 0;
+
+    a++;
+    b++;
+  }
+  return *a == *b;
+}
+
+BOOL getDoubleFromUser(double* outValue,const char* prompt) {
+  char input[64];
+  while (TRUE)
+  {
+    printf("%s",prompt);
+    if(!getLineFromUser(input,sizeof(input))) {
+      return FALSE;
+    }
+    if(isCancelInput(input)) {
+      return FALSE;
+    }
+
+    char* endptr;
+    double val = strtod(input,&endptr);
+
+    if(*endptr!='\0') {
+      printf("Invalid number, please try again.\n");
+      continue;
+    }
+    *outValue = val;
+    return TRUE;
+  }
+  
+}
+BOOL getCoordFromUser(Coord *coord, const char* promptX, const char* promptY){
+  if(!coord) return FALSE;
+
+  printf("%s",promptX);
+  if(!getDoubleFromUser(&coord->x,promptX)) {
+    return FALSE;
+  }
+
+  printf("%s",promptY);
+  if(!getDoubleFromUser(&coord->y,promptY)) {
+    return FALSE;
+  }
+
+  return TRUE;
+
+}
 
 int loadDataFile(const FileLoaderConfig *config) {
   // 1. Validate configuration
@@ -79,41 +140,35 @@ int loadDataFile(const FileLoaderConfig *config) {
 const char* portTypeToStr(PortType type) {
   switch (type)
   {
-  case FAST:
-    return "FAST";
-  case MID:
-    return "MID";
-  case SLOW:
-    return "SLOW";
+  case FAST: return "FAST";
+  case MID: return "MID";
+  case SLOW: return "SLOW";
   
-  default:
-    return "Unknown";
+  default: return "Unknown";
   }
 }
 
 PortType parsePortType (const char* str) { 
+// ////////DEBUG
   if(!str) return SLOW;
-  if(strcasecmp(str,"FAST")==0) return FAST;
-  if(strcasecmp(str,"SLOW")==0) return SLOW;
-  if(strcasecmp(str,"MID")==0) return MID;
+  if(strEqualsIgnoreCase(str,"Fast")) return FAST;
+  if(strEqualsIgnoreCase(str,"Slow")) return SLOW;
+  if(strEqualsIgnoreCase(str,"Mid")) return MID;
 
   // if invalid
   fprintf(stderr,"Unknowkn port type: '%s'\n",str);
-  return SLOW;
+
+  return -1;
 }
 
 const char* statusToStr(PortStatus status) {
   switch (status)
   {
-  case OCC:
-    return "Occupied";
-  case FREE:
-    return "Free";
-  case OOD:
-    return "Out-Of-Order";
+  case OCC: return "Occupied";
+  case FREE: return "Free";
+  case OOD: return "Out-Of-Order";
   
-  default:
-    return "Unknown";
+  default: return "Unknown";
   }
 }
 
@@ -121,12 +176,11 @@ PortStatus parsePortStatus (const char* str) {
 
   if(!str) return FREE;
 
-  if(strcasecmp(str,"occupied")==0||strcasecmp(str,"occ")==0) return OCC;
-  if(strcasecmp(str,"free")==0) return FREE;
-  if(strcasecmp(str,"out-of-order")==0||strcasecmp(str,"OUT")==0||strcasecmp(str,"ood")==0) return OOD;
-
-  fprintf(stderr,"Unknown port status: '%s'\n",str);
-  return FREE;
+  if(strEqualsIgnoreCase(str,"Occupied")||strEqualsIgnoreCase(str,"occ")) return OCC;
+  if(strEqualsIgnoreCase(str,"Free")) return FREE;
+  if(strEqualsIgnoreCase(str,"out-of-order")||strEqualsIgnoreCase(str,"ood")||strEqualsIgnoreCase(str,"out_of_order")||strEqualsIgnoreCase(str,"out of order")) return OOD;
+  
+  return -1;
 }
 
 double calculateDistance(Coord c1, Coord c2) {
@@ -134,7 +188,61 @@ double calculateDistance(Coord c1, Coord c2) {
   double dy = c1.y - c2.y;
   return sqrt(dx*dx + dy*dy);
 }
+
 void clearInputBuffer() {
   int c;
   while ((c = getchar()) != '\n' && c != EOF);
+}
+
+void removeTrailingNewline(char *str){
+  if(!str) return;
+  size_t len = strlen(str);
+  if(len > 0 && str[len-1] == '\n')
+    str[len - 1] = '\0';
+}
+
+BOOL getInputAndCancel(char* buffer, size_t size, const char* prompt) {
+  printf("%s",prompt);
+  if(!getLineFromUser(buffer,size)) return FALSE;
+  return !isCancelInput(buffer);
+}
+
+BOOL getLineFromUser(char* buffer,size_t size){
+  if (!fgets(buffer, size, stdin)) {
+      printf("Input error.\n");
+      return FALSE;
+      }
+
+  removeTrailingNewline(buffer);
+  
+  return TRUE;
+}
+
+BOOL isCancelInput(const char *str){
+  if(!str) return FALSE;
+  return strcmp(str, "0") == 0 ? TRUE : FALSE;
+}
+
+BOOL parseStationInput(const char* input,SearchKey* key,SearchType *outType){
+  if(!input || !key || !outType) return FALSE;
+
+  if(isNumericString(input)) {
+    key->id = atoi(input);
+    *outType = SEARCH_BY_ID;
+  } else {
+    strncpy(key->name,input,sizeof(key->name) - 1);
+    key->name[sizeof(key->name) - 1] = '\0';
+    *outType = SEARCH_BY_NAME;
+  }
+  return TRUE;
+}
+
+BOOL isNumericString(const char* str) {
+  if(!str||!*str) return FALSE;
+
+  while(*str) {
+    if(*str < '0' || *str>'9') return FALSE;
+    str++;
+  }
+  return TRUE;
 }

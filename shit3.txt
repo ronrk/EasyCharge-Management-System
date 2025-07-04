@@ -1,0 +1,1721 @@
+
+src:
+  BinaryTree.c:
+
+#include "../headers/BinaryTree.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+// Create a new TreeNode
+TreeNode* createNode(void* data)
+{
+  // Allocate memory newNode
+  TreeNode* node = malloc(sizeof(TreeNode));
+  // Check Allocation
+  if(node == NULL) {
+    perror("Failed to allocate TreeNode");
+    return NULL;
+  }
+  // Init treeNode
+  node->data = data;
+  node->left = node->right = NULL;
+  return node;
+}
+
+// insert node into tree recursive
+TreeNode* insertNode (TreeNode* root, void* data,CompareFunc cmp) 
+{
+  if(root == NULL) {
+    // if in a leaf
+    TreeNode *node = createNode(data);
+
+    return node;
+  }
+
+  // compare newNode data with current node 
+  int result = cmp(data,root->data);
+
+  // insert into left
+  if(result < 0) {
+
+    root->left = insertNode(root->left,data,cmp);}
+
+  else if(result > 0) {
+// insert into right
+    root->right = insertNode(root->right,data,cmp);
+  }
+  return root;
+}
+
+// public insert a node
+int insertBST(BinaryTree *tree,void *data) {
+  if(tree==NULL) {
+     printf(" NULL tree pointer\n");
+    return 0;
+  }
+
+  // insertion
+  tree->root = insertNode(tree->root,data,tree->cmp);
+  return 1;
+}
+
+// inorder traversal
+void inorderTraversal(TreeNode*root,PrintFunc print) {
+  if(root == NULL) return;
+
+  inorderTraversal(root->left,print);   //left
+  print(root->data);                    //current
+  inorderTraversal(root->right,print);  //right
+}
+
+// search
+void * searchBST(BinaryTree *tree, const void* data) {
+  if(!tree||!tree->root||!data) return NULL;
+  
+  TreeNode *current= tree->root;
+
+  while (current)
+  {
+    int cmp = tree->cmp(data,current->data);
+    if(cmp == 0) {
+      return current->data;
+    }
+    current = (cmp<0) ? current->left : current->right;
+  }
+  return NULL;
+  
+}
+
+// count nodes
+int countNodes(TreeNode *root) {
+  if(root==NULL) return 0;
+  return 1+countNodes(root->left) +countNodes(root->right);
+}
+
+// destroy tree
+void destroyTree(TreeNode *root,FreeFunc destroy) {
+  if(root == NULL) return;
+
+  destroyTree(root->left,destroy); // left
+  destroyTree(root->right,destroy); // right
+
+  if(destroy) 
+    destroy(root->data);
+
+  free(root);
+}
+
+// init BTS
+BinaryTree initTree(CompareFunc cmp,PrintFunc print,FreeFunc destroy) {
+
+  BinaryTree tree;
+  tree.root = NULL;
+  tree.cmp = cmp;
+  tree.print = print;
+  tree.destroy = destroy;
+  return tree;
+}
+
+
+static void inorderNode(TreeNode *node, void (*printFunc)(const void *)) {
+    if (!node) return;
+    inorderNode(node->left, printFunc);
+    printFunc(node->data);
+    inorderNode(node->right, printFunc);
+}
+
+void inorderBST(BinaryTree *tree, void (*printFunc)(const void *)) {
+    if (!tree || !printFunc) return;
+    inorderNode(tree->root, printFunc);
+}
+
+
+
+
+
+  Cars.c:
+
+#include "../headers/Utilis.h"
+#include "../headers/BinaryTree.h"
+#include "../headers/Cars.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int compareCars(const void* a, const void*b){
+  const Car *c1 = (const Car*)a;
+  const Car *c2 = (const Car*)b;
+
+  return strcmp(c1->nLicense,c2->nLicense);
+}
+
+Car* parseCarLine(const char* line) 
+{
+  // COPY OF THE LINE
+  char buffer[256];
+  strcpy(buffer,line);
+
+  // CREATE NEW CAR DYNAMIC
+  Car *car = malloc(sizeof(Car));
+  if(!car) 
+  {
+    perror("Failed Allocation Memory to Car\n");
+    return NULL;
+  }
+  // SPLIT THE LINE BY ","
+  char *token = strtok(buffer,",");
+  // 
+  // nLICENSE
+  if(token) {
+    strncpy(car->nLicense,token,8);
+    car->nLicense[8] = '\0';
+  }
+  // PortType
+  token = strtok(NULL,",");
+  car->portType = parsePortType(token);
+  
+  // TotalPayed
+  token = strtok(NULL,",");
+  if(token) 
+    car->totalPayed = atof(token);
+
+  // StationId *****
+  token = strtok(NULL,",");
+  // PortNumber *****
+  token = strtok(NULL,",");
+  // inqueue
+  token = strtok(NULL,",");
+  if(token) {
+    car->inqueue = strcmp(token,"1") == 0 ? TRUE : FALSE;
+  }
+  // nPort *****
+  car->pPort = NULL;
+
+  return car;
+};
+
+void printCar(const void* data) 
+{
+  Car* car = (Car*) data;
+  printf("License: %s | PortType: %d | TotalPayed: %.2f | inQueue: %u\n",car->nLicense,car->portType,car->totalPayed,car->inqueue);
+}
+
+Car *createCar(const char *license, PortType type) {
+  Car *car = malloc(sizeof(Car));
+  if(!car) {
+    perror("Failed alocate memory on createCar\n");
+    return NULL;
+  }
+  strncpy(car->nLicense,license,8);
+  car->nLicense[8] = '\0';
+  car->portType = type;
+  car->totalPayed = 0.0;
+  car->pPort = NULL;
+  car->inqueue = FALSE;
+  return car;
+}
+
+void destroyCar(void *data) {
+  if(!data)return;
+  Car *car = (Car*)data;
+
+  // dynamic fields
+  free(car);
+}
+
+Car* searchCar(BinaryTree *carTree,const char *lisence) {
+  if(!carTree||!lisence||!carTree->root) {
+    return NULL;
+  }
+
+  TreeNode *current = carTree->root;
+
+  while (current!=NULL)
+  {
+    Car *car=(Car *)current->data;
+    int cmp= strcmp(lisence,car->nLicense);
+
+    if(cmp ==0 ) {
+      return car;
+    }
+    else if(cmp<0) {
+      current = current->left;
+    }
+    else  {
+      current = current->right;
+    }
+  }
+  
+  return NULL;
+}
+
+BOOL isLicenseValid(const char* license) {
+  return(strlen(license) == 8 || strspn(license,"0123456789")==8);
+}
+
+
+
+
+
+
+
+
+  Menu.c:
+
+#include "Menu.h"
+#include "Station.h"
+#include "Utilis.h"
+#include "Cars.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <float.h>
+#include <string.h>
+
+Station* getStationFromUser(const BinaryTree *stationTree);
+BOOL getLicenseFromUser(char *input,size_t size);
+PortType getPortTypeFromUser();
+
+void mainMenu(SystemData* sys) {
+  int choice;
+  char input[10];
+  do
+  {
+    printf("\n***** EV CHARGING MANAGER *****");
+    printf("\n*1. Locate Nearest Station\n");
+    printf("\n*2. Charge Car\n");
+    printf("\n*3. Display System Status\n");
+    printf("\n*4. Create New Station\n");
+    printf("\n*0. Exit\n");
+    printf("*********************\n");
+    printf("Enter your choice: ");
+
+    if(fgets(input,sizeof(input),stdin) == NULL) {
+      printf("Error reading input\n");
+      continue;
+    }
+
+    if(sscanf(input,"%d",&choice)!=1) {
+      printf("Invalid input. enter a number\n");
+      continue;
+    }
+      switch (choice)
+      {
+      case 1:
+        locateNearSt(&sys->stationTree);
+        break;
+      case 2:
+        chargeCar(&sys->stationTree,&sys->carTree);
+        break;
+      case 3:
+        displaySystemStatus(&sys->stationTree, &sys->carTree);
+        break;
+      case 4:
+        createStationInteractive(&sys->stationTree);
+        break;
+      case 0:
+        printf("Exiting system...\n");
+        break;
+      default:
+      
+      printf("Invalid choice try again\n");
+      }
+      
+    }
+  while (choice!=0); 
+  
+}
+
+
+void locateNearSt(const BinaryTree * stationTree) {
+
+    if(!stationTree||!stationTree->root) {
+      printf("No Stations availabe\n");
+      return;
+    }
+
+    // get user location
+    Coord userLoc;
+    printf("Enter your current location (x y): ");
+    if(scanf("%lf %lf",&userLoc.x,&userLoc.y)!=2) {
+      printf("Invalid coordinates\n");
+      clearInputBuffer();
+      return;
+    }
+    clearInputBuffer();
+
+    // init search
+    SearchKey key = {.type = SEARCH_BY_DISTANCE,.location={.userX = userLoc.x,.userY=userLoc.y}};
+
+    // search
+    Station* nearest = searchStation((BinaryTree*)stationTree,&key,SEARCH_BY_DISTANCE);
+    // print result
+    if(nearest) {
+      double dist = calculateDistance(userLoc,nearest->coord);
+      printf("\n\t*** Nearest Station ***\t\n");
+      printf("Name: %s\n",nearest->name);
+      printf("Id: %u\n",nearest->id);
+      printf("Distance: %.2f\n",dist);
+      printf("Ports Available: %d/%d\n",
+        countFreePorts(nearest->portsList),nearest->nPorts);
+      printf("Cars in Queue %d\n",countQueueItems(nearest->qCar));
+
+        // printQueue
+        if(nearest->qCar && !isEmpty(nearest->qCar)) {
+          printf("Cars in queue: %d\n", countQueueItems(nearest->qCar));
+          printf("First in queue: %s\n", getFront(nearest->qCar)->nLicense);
+        } else {
+           printf("No cars in queue\n");
+        }
+        
+    } else {
+      printf("No station found\n");
+    }
+  }
+
+void chargeCar(BinaryTree *stationTree,BinaryTree* carTree){
+  char license[9];
+  Car* car = NULL;
+  Port* port = NULL;
+  
+  // exist car
+  while (1)
+  {
+    // get and check car license
+  
+    if(!getLicenseFromUser(license,sizeof(license))) {
+      return; // Canceled
+    }
+    // search for cars in tree
+    car = searchCar(carTree,license);
+    if(car) {
+      printf("Car found in system:\n");
+      printCar(car);
+    } else {
+      printf("Car not found. We will register a new one.\n");
+    }
+      break;  // goode license
+  } // end while
+
+  // no car Get new Car, get port type
+  if(!car){
+    // get Port Type
+    PortType pType = getPortTypeFromUser();
+
+    if(pType == -1) {
+      printf("Canceled\n");
+      return;
+    }
+
+    // create car
+    car = createCar(license,pType);
+    if(!car) {
+      printf("Failed to create new car.\n");
+      return;
+    }
+
+    // insert car into tree
+    if (!insertBST(carTree, car)) {
+        printf("Failed to insert car into system.\n");
+        destroyCar(car);
+        return;
+    }   
+ 
+  printf("New car registered:\n");
+  printCar(car);
+ }
+
+  //  get station
+  Station* station = getStationFromUser(stationTree);
+  if (!station) {
+    printf("Station selection canceled or failed.\n");
+    return;
+  }
+
+  // find port in station
+  Port* availablePort = findAvailablePort(station->portsList,car->portType);
+  if(!availablePort) {
+    printf("No available ports for %s cars at %s\n", 
+           portTypeToStr(car->portType), station->name);
+
+    if(station->qCar) {
+      enqueue(station->qCar,car);
+      car->inqueue = TRUE;
+      printf("Car added to queue station: %s\n",station->name);
+    } else {
+      printf("Queue dont exist\n");
+    }
+    
+
+    return;
+  }
+
+  Date now = {2025,7,4,15,45};
+  if(assignCar2Port(availablePort,car,now)){
+     printf("Car %s assigned to port %u at station %s\n", car->nLicense, availablePort->num, station->name);
+    printPort(availablePort);
+    } else {
+        printf("Failed to assign car to port.\n");
+    }
+
+}
+
+Station* getStationFromUser(const BinaryTree *stationTree) {
+  char input[100];
+  SearchKey key;
+  SearchType type;
+
+  while (1)
+  {
+    if (!getInputAndCancel(input,sizeof(input),"Enter Station ID or Name (or '0' to cancel): ")) {
+      return NULL;
+      }
+
+      // check valid station
+    if(!parseStationInput(input,&key,&type)) {
+      printf("Invalid input\n");
+      continue;
+    };
+
+    Station* station = searchStation((BinaryTree*)stationTree, &key,type);
+
+    if(station) {
+      printf("Found station: %s (ID: %u)\n", station->name, station->id);
+      return station;
+    } else {
+      printf("No station found with input '%s'. Try again.\n", input);
+    }
+  }
+  
+}
+
+PortType getPortTypeFromUser() {
+  char input[20];
+  while (1)
+  {
+    printf("Enter Port Type for new car (| FAST | MID | SLOW |): ");
+
+    if(fgets(input,sizeof(input),stdin) == NULL) {
+      printf("Input error, try again \n");
+      continue;
+    }
+
+    removeTrailingNewline(input);
+
+    if(isCancelInput(input)) {
+      printf("Canceled by user\n");
+      return -1;
+    };
+
+    PortType type = parsePortType(input);
+    if(type != -1) return type;
+
+    printf("Invalid input. (| FAST | MID | SLOW |)\n)");
+  } // end while
+  
+};
+
+
+BOOL getLicenseFromUser(char *input,size_t size) {
+  while (1)
+  {
+    /* code */
+    printf("Enter car license number (8 digits): ");
+    if(!fgets(input,size,stdin)) {
+      printf("Input Error.\n");
+      return FALSE;
+    }
+    removeTrailingNewline(input);
+
+    if(isCancelInput(input)) {
+      printf("Canceled by user\n");
+      return FALSE;
+    }
+    if(!isLicenseValid(input)) {
+      printf("Invalid license format. Try again.\n");
+      continue;
+    }
+
+    return TRUE;
+  }
+
+}
+
+
+
+// FOR TESTING
+
+void displaySystemStatus(const BinaryTree *stationTree, const BinaryTree *carTree) {
+    printf("\n========== SYSTEM STATUS ==========\n");
+
+    printf("\n-- All Stations --\n");
+    if (!stationTree || !stationTree->root) {
+        printf("No stations found.\n");
+    } else {
+        inorderBST((BinaryTree *)stationTree, printFullStation);
+    }
+
+    printf("\n-- All Registered Cars --\n");
+    if (!carTree || !carTree->root) {
+        printf("No cars found.\n");
+    } else {
+        inorderBST((BinaryTree *)carTree, printCar); // you already have printCar
+    }
+
+    printf("\n===================================\n");
+}
+
+void createStationInteractive(BinaryTree* stationTree) {
+  char name[MAX_NAME];
+  SearchKey key;
+  SearchType type;
+
+  // ask for station details
+  printf("---- Create New Station ----\n");
+  while (TRUE)
+  {
+     // prompt for name
+    if(!getInputAndCancel(name,sizeof(name),"Enter station name (or 0 to cancel): ")) 
+      return;
+    
+      if(strlen(name) < 2) {
+        printf("Name too short. Try again.\n");
+        continue;
+      }
+
+      // check if name exist
+      strncpy(key.name,name,sizeof(key.name) -1);
+      key.name[sizeof(key.name) - 1] = '\0';
+      type = SEARCH_BY_NAME;
+
+      if(searchStation(stationTree,&key,type)) {
+        printf("Station with this name already exist\n");
+        continue;
+      }
+
+      break; // valid
+  }
+
+  // Generate a unique id
+  unsigned int id = generateUniqueStationId(stationTree);
+  printf("Generated station ID: %u\n", id);
+
+  // create station
+  Coord coord;
+  if(!getCoordFromUser(&coord, "Enter X coord: ", "Enter Y coord: ")) {
+    printf("Canceld");
+    return;
+  };
+
+  Station *newStation = StationCreate(id,name,0,coord);
+  if(!newStation) {
+    printf("Failed to create station\n");
+    return;
+  }
+
+  if(!insertBST(stationTree,newStation)) {
+    printf("Failed to insert station into system\n");
+    stationTree->destroy(newStation);
+    return;
+  }
+  printf("Station '%s' created successfully with ID %u!\n", name, id);
+  
+}
+
+
+
+
+
+
+
+
+  Port.c:
+
+#include "../headers/Port.h"
+#include "../headers/Cars.h"
+// #include "../headers/Utilis.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+Port *createPort(unsigned int stationId,unsigned int num, PortType type,PortStatus status,Car* car,Date t,const char* license) {
+  Port* newPort = malloc(sizeof(Port));
+  if(!newPort) {
+    perror("Failed alocate memory on Port");
+    return NULL;
+  }
+  newPort->stationId = stationId;
+  newPort->num = num;
+  newPort->portType = type;
+  newPort->status = status;
+
+  if(car) newPort->p2Car = car;
+  else NULL;
+  
+  strncpy(newPort->license,license,8);
+  newPort->license[8] = '\0';
+
+  // initialize time
+  newPort->tin.year=t.year;
+  newPort->tin.month=t.month;
+  newPort->tin.day = t.day;
+  newPort->tin.hour = t.hour;
+  newPort->tin.min = t.min;
+
+  newPort->next = NULL;
+
+  return newPort;
+}
+
+Port *insertPort(Port* head, Port*newPort) {
+  if(!newPort) return head;
+
+  newPort->next = head;
+  return newPort;
+}
+
+Port *findPort(Port *head, unsigned int num){
+  Port* current = head;
+
+  while (current != NULL)
+  {
+    if(current->num == num) {
+      return current;
+    }
+    current = current->next;
+  }
+ 
+  return NULL;
+}
+
+Port* findAvailablePort(Port* portList, PortType type) {
+  Port* current = portList;
+
+  while (current)
+  {
+      if(current->status == FREE && isCompatiblePortType(type,current->portType)) {
+        return current;
+      }
+      current = current->next;
+
+  }
+  
+  return NULL;
+}
+
+BOOL assignCar2Port(Port* port, Car* car, Date startTime) {
+
+  if(!port||!car) {
+    fprintf(stderr, "assignCar2Port: Invalid port or car pointer.\n");
+    return FALSE;
+  }
+
+  // check if car type == port type
+  if(!isCompatiblePortType(car->portType,port->portType)) {
+    return FALSE;
+  }
+
+  // check if port is available
+  if(isPortAvailable(port)) {
+    port->p2Car = car;
+
+    strncpy(port->license,car->nLicense,8);
+    port->license[8] = '\0';
+
+    port->status = OCC;
+    port->tin = startTime;
+    car->pPort = port;
+    car->inqueue = FALSE;
+    return TRUE;
+  }
+  return FALSE;
+}
+
+BOOL isCompatiblePortType(PortType carType, PortType portType) {
+  return(carType == portType);
+}
+
+BOOL isPortAvailable(Port* port){
+  if(port->status == OCC) {
+    fprintf(stderr, "assignCar2Port: Port %u is already occupied.\n", port->num);
+    return FALSE;
+  }
+  if (port->status == OOD) {
+        fprintf(stderr, "assignCar2Port: Port %u is out-of-order.\n", port->num);
+        return FALSE;
+  }
+  
+  return TRUE;
+}
+
+void printPortList(Port *head) {
+  if(head== NULL) 
+  {
+    printf("No Ports\n");
+    return;
+  }
+
+  printf("---PortList---\n");
+  Port* current = head;
+  while (current != NULL) {
+    printPort(current);
+    current=current->next;
+  }
+  printf("------\n");
+  
+}
+
+void printPort(const Port* port) {
+  printf("Port Number: %u  |  Type: %s  |  Status: %s\n",port->num,portTypeToStr(port->portType),statusToStr(port->status));
+
+      if(port->p2Car) {
+        printf("  Charging Car: %s\n",port->p2Car->nLicense);
+
+        printf("Since: %04d-%02d-%02d %02d:%02d\n",port->tin.year,port->tin.month,port->tin.day,port->tin.hour,port->tin.min);
+      } else {
+        printf("  Charging Car: None\n");
+      }
+}
+
+void destroyPortList(Port *head) {
+  Port* current = head;
+  while (current != NULL)
+  {
+    Port* tmp = current;
+    current = current->next;
+
+    free(tmp);
+  }
+  
+}
+
+void destroyPort(void *data){
+  Port* port = (Port*)data;
+  if(port){
+    free(port);
+  }
+}
+
+int countFreePorts(const Port* head) {
+  int count = 0;
+  const Port* current = head;
+  while (current)
+  {
+    if(current->status == FREE) count++;
+    current=current->next;
+  }
+  return count;
+}
+
+BOOL isPortTypeValid(const char* pTypeKey) {
+  return (
+    parsePortType(pTypeKey) != -1
+  );
+}
+
+
+
+
+
+
+
+  Queue.c:
+
+#include "../headers/Queue.h"
+#include "Cars.h"
+#include <stdlib.h>
+#include <stdio.h>
+
+void initQueue(qCar*queue) 
+{
+  queue->front = NULL;
+  queue->rear = NULL;
+}
+
+qCar *createQueue(){
+  qCar *queue = malloc(sizeof(qCar));
+  if(!queue) {
+    perror("Failed to allocate memory for queue");
+    return NULL;
+  }
+  initQueue(queue);
+  return queue;
+}
+
+void destroyQueue(qCar*queue) {
+  CarNode* current = queue->front;
+  while (current)
+  {
+    CarNode *tmp = current;
+    current = current->next;
+    free(tmp);
+  }
+  free(queue);
+  
+}
+
+int isEmpty(const qCar *queue) 
+{
+  return(queue->front == NULL);
+}
+
+int enqueue(qCar *queue, Car *car) 
+{
+  CarNode *newNode = malloc(sizeof(CarNode));
+  if(!newNode) {
+    perror("Failed to allocate memory for QueueNode");
+    return 0; // FAILED
+  }
+  newNode->data = car;
+  newNode->next = NULL;
+
+  if(queue->rear == NULL) {
+    // empty queue
+    queue->front = queue->rear = newNode;
+  } else {
+    queue->rear->next = newNode;
+    queue->rear = newNode;
+  }
+  return 1; //SUCCESS
+}
+
+Car *dequeue(qCar *queue) {
+  if(queue->front == NULL) {
+    // empty queue
+    return NULL;
+  }
+  CarNode *temp = queue->front;
+  Car *car = temp->data;
+  queue->front = queue->front->next;
+
+  if(queue->front == NULL){
+    // queue empty
+    queue->rear = NULL;
+  }
+  free(temp);
+  return car;
+}
+
+void printQueue(const qCar *queue) {
+  if(queue == NULL || queue->front == NULL) {
+    printf("Queue is empty\n");
+    return;
+  }
+
+  printf("Cars in queue:\n");
+  CarNode *current = queue->front;
+  while (current!=NULL)
+  {
+    printCar(current->data);
+    current=current->next;
+  }
+}
+
+Car *getFront(const qCar *queue) {
+  if(queue == NULL|| queue->front == NULL) {
+    return NULL; //empty queue
+  }
+
+  return queue->front->data;
+}
+
+int countQueueItems(const qCar* queue) {
+  if(!queue || !queue->front) return 0;
+
+  int count = 0;
+  CarNode* current = queue->front;
+  while (current)
+  {
+    count++;
+    current = current->next;
+  }
+
+  return count;
+}
+
+
+
+
+
+
+  Station.c:
+
+#include "../headers/Station.h"
+#include "../headers/Queue.h"
+#include "../headers/Port.h"
+#include "BinaryTree.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <float.h>
+#include <math.h>
+
+Station *searchById(BinaryTree *tree, SearchKey *key);
+Station *searchByName(BinaryTree *tree, SearchKey *key);
+Station *searchByDistance(BinaryTree *tree, SearchKey *key);
+
+Station *StationCreate(unsigned int id, const char *name, int nPorts, Coord coord)
+{
+  // printf("[StationCreate] Creating station %u\n", id);
+  Station *s = malloc(sizeof(Station));
+  if (!s)
+  {
+    perror("Failed Allocation Memory Create Station\n");
+    return NULL;
+  }
+  // printf("[Create3] Allocated station struct\n");
+  // copy name
+  s->name = strdup(name);
+  if (!s->name)
+  {
+    fprintf(stderr, "Failed copy name to station for : %s\n", name);
+    free(s);
+    return NULL;
+  }
+  // printf("[Create5] Name duplicated: %s\n", name);
+
+  // creat Queue
+  s->qCar = createQueue();
+  if (!s->qCar)
+  {
+    fprintf(stderr, "Queue creataion failed for Station: %u\n", id);
+    free(s->name);
+    free(s);
+    return NULL;
+  }
+  // printf("[Create6] Creating queue\n");
+  s->id = id;
+  s->nPorts = nPorts;
+  s->coord = coord;
+  s->portsList = NULL;
+  s->nCars = 0;
+  s->left = NULL;
+  s->right = NULL;
+
+  // printf("[Create8] Station created successfully\n");
+  return s;
+}
+
+void printFullStation(const void *data)
+{
+
+  const Station *station = (const Station *)data;
+  printf("\n========== Station: %s (ID: %u) ==========\n", station->name, station->id);
+  printf("Location: (%.2f, %.2f)\n", station->coord.x, station->coord.y);
+  printf("Total Ports: %d\n", station->nPorts);
+  printf("Cars in queue: %d\n", countQueueItems(station->qCar));
+
+  printf("\n-- Ports --\n");
+  if (station->portsList)
+  {
+    printPortList(station->portsList); // assumes you already implemented this
+  }
+  else
+  {
+    printf("No ports available\n");
+  }
+
+  if (!isEmpty(station->qCar))
+  {
+    printf("\n-- Queue --\n");
+    printQueue(station->qCar); // assumes you already implemented this
+  }
+  else
+  {
+    printf("\nNo cars in queue.\n");
+  }
+}
+
+void StationDestroy(void *data)
+{
+  Station *station = (Station *)data;
+  if (!station)
+    return;
+  // free dynamic name
+  free(station->name);
+  // free dynamic qCar
+  if (station->qCar)
+    destroyQueue(station->qCar);
+
+  // free dynamic ports linked list
+  if (station->portsList)
+    destroyPortList(station->portsList);
+  free(station);
+}
+
+int compareStation(const void *a, const void *b)
+{
+  Station *s1 = (Station *)a;
+  Station *s2 = (Station *)b;
+
+  // Add null checks
+  if (!s1 || !s2)
+  {
+    return 0;
+  }
+
+  int result = (s1->id > s2->id) - (s1->id < s2->id);
+  return result;
+}
+
+void printStation(const void *data)
+{
+  const Station *station = data;
+  printf("Station ID: %u  |  Name: %s |  Ports: %d  |  Cars: %d\n", station->id, station->name, station->nPorts, station->nCars);
+}
+
+void *parseStationLine(const char *line)
+{
+
+  unsigned int id;
+  char name[100];
+  int nPorts;
+  double x, y;
+
+  int scan = sscanf(line, "%u,%99[^,],%d,%lf,%lf", &id, name, &nPorts, &x, &y);
+  if (scan != 5)
+  {
+    fprintf(stderr, "Failed to parse line: %s\n", line);
+    return NULL;
+  }
+
+  Coord coord = {x, y};
+  Station *station = StationCreate(id, name, nPorts, coord);
+
+  return station;
+}
+
+// search station
+static SearchFunc searchFunctions[SEARCH_TYPE_COUNT] = {
+    searchById,
+    searchByName,
+    searchByDistance};
+
+Station *searchStation(BinaryTree *tree, SearchKey *key, SearchType type)
+{
+  if (!tree || !key)
+    return NULL;
+  if (type < 0 || type >= SEARCH_TYPE_COUNT)
+    return NULL;
+  return searchFunctions[type](tree, key);
+}
+
+typedef struct
+{
+  Station *closest;
+  double minDistance;
+  double userX;
+  double userY;
+} DistanceSearchHelper;
+
+Station *searchByNameHelper(TreeNode *node, const char *name)
+{
+  if (node == NULL)
+    return NULL;
+  Station *station = (Station *)node->data;
+
+  // search correct node
+  if (strcmp(station->name, name) == 0)
+    return station;
+
+  // search lef
+  Station *found = searchByNameHelper(node->left, name);
+  if (found)
+    return found;
+
+  // search right
+  return searchByNameHelper(node->right, name);
+}
+
+Station *searchByName(BinaryTree *tree, SearchKey *key)
+{
+  if (!tree || !key)
+    return NULL;
+  return searchByNameHelper(tree->root, key->name);
+}
+
+Station *findStationById(TreeNode *node, int id)
+{
+  if (node == NULL)
+    return NULL;
+
+  Station *station = (Station *)node->data;
+
+  if (station->id == id)
+  {
+    return station;
+  }
+  else if (id < station->id)
+  {
+    return findStationById(node->left, id);
+  }
+  else
+  {
+    return findStationById(node->right, id);
+  }
+}
+
+Station *searchById(BinaryTree *tree, SearchKey *key)
+{
+  if (!tree || !key)
+    return NULL;
+  return findStationById(tree->root, key->id);
+}
+
+void searchByDistanceHelper(TreeNode *node, DistanceSearchHelper *helper)
+{
+  if (node == NULL)
+    return;
+  Station *station = (Station *)node->data;
+
+  double dx = station->coord.x - helper->userX;
+  double dy = station->coord.y - helper->userY;
+  double distance = sqrt(dx * dx + dy * dy);
+
+  if (distance < helper->minDistance)
+  {
+    helper->minDistance = distance;
+    helper->closest = station;
+  }
+
+  searchByDistanceHelper(node->left, helper);
+  searchByDistanceHelper(node->right, helper);
+}
+
+static void findMax(TreeNode *node, unsigned int *maxId)
+{
+
+  if (!node)
+    return;
+  Station *s = (Station *)node->data;
+  if (s->id > *maxId)
+    *maxId = s->id;
+  findMax(node->left, maxId);
+  findMax(node->right, maxId);
+}
+
+unsigned int generateUniqueStationId(BinaryTree *tree)
+{
+  unsigned int maxId = 100; // start from 100 at least
+  if (tree && tree->root)
+    findMax(tree->root, &maxId);
+
+  return maxId + 1;
+}
+
+Station *searchByDistance(BinaryTree *tree, SearchKey *key)
+{
+  if (!tree)
+    return NULL;
+
+  DistanceSearchHelper helper = {
+      .closest = NULL,
+      .minDistance = DBL_MAX,
+      .userX = key->location.userX,
+      .userY = key->location.userY};
+
+  searchByDistanceHelper(tree->root, &helper);
+  return helper.closest;
+}
+
+
+
+
+
+  SystemData.c:
+
+#include "../headers/SystemData.h"
+#include "../headers/BinaryTree.h"
+#include "../headers/Cars.h"
+#include "../headers/Station.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+SystemData* loadFiles(){
+  // init systemData struct to handle data
+  SystemData *sys = malloc(sizeof(SystemData));
+  if(!sys) {
+    perror("Failed to allocate memory in SystemData\n");
+    return NULL;
+  }
+
+
+  // init car tree
+  sys->carTree = initTree(compareCars,printCar,destroyCar);
+  sys->stationTree = initTree(compareStation,printStation,StationDestroy);
+
+  // load stations
+  int stationCount = loadStations(&sys->stationTree);
+   // load cars
+   int carCount = loadCars(&sys->carTree);
+
+  // load ports and attach to stations
+  int portsCount = loadPorts(sys);
+
+  // load queue
+  loadLineOfCars(sys);
+
+  return sys;
+}
+
+void* stationParser(const char* line) {
+  return parseStationLine(line);
+}
+
+void* carsParser(const char* line){
+  return parseCarLine(line);
+}
+
+void* portParser(const char*line) {
+  // parse port line
+  unsigned int stationId,portNum;
+  char typeStr[10],license[9];
+  int status,y,m,d,h,min;
+
+  if(sscanf(line,"%u,%u,%9[^,],%d,%d,%d,%d,%d,%d,%8s",
+    &stationId, &portNum, typeStr, &status, &y, &m, &d, &h, &min, license) 
+      != 10){
+        // DEBUGGG
+        fprintf(stderr, "[portParser] Failed to parse line: %s\n", line);
+
+        return NULL;
+      }
+
+      PortType parsedType = parsePortType(typeStr);
+  if (parsedType == -1) {
+    fprintf(stderr, "[portParser] Invalid port type in line: %s\n", line);
+    return NULL;
+  }
+
+  return createPort(stationId,portNum,parsePortType(typeStr),(PortStatus)status,NULL,
+                    (Date){y,m,d,h,min},license);
+}
+
+// processor to link port to station
+void linkPortToStation(void*obj, void*context) {
+  Port *port = (Port*)obj;
+  SystemData* sys = (SystemData*)context;
+
+  // find the station for this port
+  Station searchKey = {.id=port->stationId};
+  Station *station = searchBST(&sys->stationTree,&searchKey);
+
+  if(!station) {
+    fprintf(stderr,"Station %u no found for port: %u\n",port->stationId,port->num);
+    return;
+  } 
+
+  // add port to station
+  station->portsList = insertPort(station->portsList,port);
+
+  // link car to port
+  if(strcmp(port->license,"-1")!=0) {
+    Car* car = searchCar(&sys->carTree,port->license);
+    if(car) {
+      port->p2Car = car;  // port to car
+      car->pPort = port;  // car to port
+      // ////[DEBUG]
+      // printf("Linked car %s to port %u\n", port->license, port->num);
+    }
+  }
+
+}
+
+void destroyFiles(SystemData *sys) {
+  if(!sys) return;
+
+  // free stations
+  destroyTree(sys->stationTree.root,sys->stationTree.destroy);
+
+  // free cars
+  destroyTree(sys->carTree.root,sys->carTree.destroy);
+  
+  free(sys);
+}
+
+int loadStations(BinaryTree *stationTree){
+  FileLoaderConfig config = {
+    .filename="data/Stations.txt",
+    .targetTree =stationTree,
+    .parser = stationParser,
+    .processor = NULL,
+    .context = NULL,
+    .destroyObject=StationDestroy,
+    .skipHeader = 1
+  };
+  return loadDataFile(&config);
+}
+
+int loadCars(BinaryTree *carTree){
+  FileLoaderConfig config = {
+    .filename = "data/Cars.txt",
+    .targetTree =carTree,
+    .parser = carsParser,
+    .processor = NULL,
+    .context = NULL,
+    .destroyObject = destroyCar,
+    .skipHeader = 1
+  };
+  return loadDataFile(&config);
+}
+
+int loadPorts(SystemData *sys){
+  FileLoaderConfig config = {
+    .filename = "data/Ports.txt",
+    .targetTree = NULL,
+    .parser = portParser,
+    .processor = linkPortToStation,
+    .context = sys,
+    .destroyObject = destroyPort,
+    .skipHeader = 1
+  };
+  return loadDataFile(&config);
+}
+
+void loadLineOfCars(SystemData *sys) {
+  
+  // Minimal implementation - just show we're loading
+  FILE* file = fopen("data/LineOfCars.txt", "r");
+  if(!file) {
+    perror("Error opening LineOfCars.txt");
+    return;
+  }
+  
+  char line[256];
+  // Skip header
+  fgets(line, sizeof(line), file);
+  
+  while(fgets(line, sizeof(line), file)) {
+    line[strcspn(line, "\r\n")] = '\0';
+  }
+  
+  fclose(file);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+  Utilis.c:
+
+#include "../headers/Utilis.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+
+
+int strEqualsIgnoreCase(const char* a, const char* b){
+  while(*a&&*b) {
+    char ca = *a;
+    char cb = *b;
+
+    // 
+    if(ca >= 'A' && ca <= 'Z') ca += 32;
+    if(cb >= 'A' && cb<= 'Z') cb += 32;
+
+    if(ca!=cb) return 0;
+
+    a++;
+    b++;
+  }
+  return *a == *b;
+}
+
+BOOL getDoubleFromUser(double* outValue,const char* prompt) {
+  char input[64];
+  while (TRUE)
+  {
+    printf("%s",prompt);
+    if(!getLineFromUser(input,sizeof(input))) {
+      return FALSE;
+    }
+    if(isCancelInput(input)) {
+      return FALSE;
+    }
+
+    char* endptr;
+    double val = strtod(input,&endptr);
+
+    if(*endptr!='\0') {
+      printf("Invalid number, please try again.\n");
+      continue;
+    }
+    *outValue = val;
+    return TRUE;
+  }
+  
+}
+BOOL getCoordFromUser(Coord *coord, const char* promptX, const char* promptY){
+  if(!coord) return FALSE;
+
+  printf("%s",promptX);
+  if(!getDoubleFromUser(&coord->x,promptX)) {
+    return FALSE;
+  }
+
+  printf("%s",promptY);
+  if(!getDoubleFromUser(&coord->y,promptY)) {
+    return FALSE;
+  }
+
+  return TRUE;
+
+}
+
+int loadDataFile(const FileLoaderConfig *config) {
+  // 1. Validate configuration
+  if(!config || !config->filename || !config->parser || !config->destroyObject) {
+    fprintf(stderr, "Invalid loader configuration\n");
+    return -1;
+  }
+
+  // 2. Open file
+  FILE* file = fopen(config->filename, "r");
+  if(!file) {
+    perror(config->filename);
+    return -1;
+  }
+
+  // 3. Skip header if requested
+  if(config->skipHeader) {
+    char header[256];
+    if(!fgets(header, sizeof(header), file)) {
+      fclose(file);
+      return 0;  // Empty file is not an error
+    }
+  }
+
+  // 4. Process lines
+  char line[512];
+  int count = 0;
+  int lineNum = 0;
+  
+  while(fgets(line, sizeof(line), file)) {
+    lineNum++;
+    
+    // Remove newline
+    line[strcspn(line, "\r\n")] = '\0';
+    
+    // Check for overflow
+    if(strlen(line) == sizeof(line)-1 && line[sizeof(line)-2] != '\n') {
+      fprintf(stderr, "Line %d too long in %s\n", lineNum, config->filename);
+      // Consume remaining line
+      int ch;
+      while((ch = fgetc(file)) != EOF && ch != '\n');
+      continue;
+    }
+
+    // 5. Parse line
+    void* obj = config->parser(line);
+    if(!obj) {
+      fprintf(stderr, "Parse error at %s:%d\n", config->filename, lineNum);
+      continue;
+    }
+
+    // 6. Insert to tree if requested
+    if(config->targetTree) {
+      if(!insertBST(config->targetTree, obj)) {
+        fprintf(stderr, "Insertion failed at %s:%d\n", config->filename, lineNum);
+        config->destroyObject(obj);
+        continue;
+      }
+    }
+
+    // 7. Post-process
+    if(config->processor) {
+      config->processor(obj, config->context);
+    }
+    
+    count++;
+  }
+
+  // 8. Cleanup
+  fclose(file);
+  return count;
+}
+
+const char* portTypeToStr(PortType type) {
+  switch (type)
+  {
+  case FAST: return "FAST";
+  case MID: return "MID";
+  case SLOW: return "SLOW";
+  
+  default: return "Unknown";
+  }
+}
+
+PortType parsePortType (const char* str) { 
+// ////////DEBUG
+  if(!str) return SLOW;
+  if(strEqualsIgnoreCase(str,"Fast")) return FAST;
+  if(strEqualsIgnoreCase(str,"Slow")) return SLOW;
+  if(strEqualsIgnoreCase(str,"Mid")) return MID;
+
+  // if invalid
+  fprintf(stderr,"Unknowkn port type: '%s'\n",str);
+
+  return -1;
+}
+
+const char* statusToStr(PortStatus status) {
+  switch (status)
+  {
+  case OCC: return "Occupied";
+  case FREE: return "Free";
+  case OOD: return "Out-Of-Order";
+  
+  default: return "Unknown";
+  }
+}
+
+PortStatus parsePortStatus (const char* str) { 
+
+  if(!str) return FREE;
+
+  if(strEqualsIgnoreCase(str,"Occupied")||strEqualsIgnoreCase(str,"occ")) return OCC;
+  if(strEqualsIgnoreCase(str,"Free")) return FREE;
+  if(strEqualsIgnoreCase(str,"out-of-order")||strEqualsIgnoreCase(str,"ood")||strEqualsIgnoreCase(str,"out_of_order")||strEqualsIgnoreCase(str,"out of order")) return OOD;
+  
+  return -1;
+}
+
+double calculateDistance(Coord c1, Coord c2) {
+  double dx = c1.x - c2.x;
+  double dy = c1.y - c2.y;
+  return sqrt(dx*dx + dy*dy);
+}
+
+void clearInputBuffer() {
+  int c;
+  while ((c = getchar()) != '\n' && c != EOF);
+}
+
+void removeTrailingNewline(char *str){
+  if(!str) return;
+  size_t len = strlen(str);
+  if(len > 0 && str[len-1] == '\n')
+    str[len - 1] = '\0';
+}
+
+BOOL getInputAndCancel(char* buffer, size_t size, const char* prompt) {
+  printf("%s",prompt);
+  if(!getLineFromUser(buffer,size)) return FALSE;
+  return !isCancelInput(buffer);
+}
+
+BOOL getLineFromUser(char* buffer,size_t size){
+  if (!fgets(buffer, size, stdin)) {
+      printf("Input error.\n");
+      return FALSE;
+      }
+
+  removeTrailingNewline(buffer);
+  
+  return TRUE;
+}
+
+BOOL isCancelInput(const char *str){
+  if(!str) return FALSE;
+  return strcmp(str, "0") == 0 ? TRUE : FALSE;
+}
+
+BOOL parseStationInput(const char* input,SearchKey* key,SearchType *outType){
+  if(!input || !key || !outType) return FALSE;
+
+  if(isNumericString(input)) {
+    key->id = atoi(input);
+    *outType = SEARCH_BY_ID;
+  } else {
+    strncpy(key->name,input,sizeof(key->name) - 1);
+    key->name[sizeof(key->name) - 1] = '\0';
+    *outType = SEARCH_BY_NAME;
+  }
+  return TRUE;
+}
+
+BOOL isNumericString(const char* str) {
+  if(!str||!*str) return FALSE;
+
+  while(*str) {
+    if(*str < '0' || *str>'9') return FALSE;
+    str++;
+  }
+  return TRUE;
+}
+
+
+
+
+
+  main.c:
+
+
+
+
+#include "../headers/SystemData.h"
+#include "../headers/Station.h"
+#include "Menu.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void testSearch(BinaryTree *tree);
+
+int main() {
+    SystemData *data = loadFiles();
+    
+    printf("Stations loaded. Running search tests...\n");
+
+    testSearch(&data->stationTree);
+
+    mainMenu(data);
+
+    destroyFiles(data);
+    return 0;
+}
+
+void testSearch(BinaryTree *tree)
+{
+
+  // Search by ID - valid example
+    SearchKey keyId = {.type = SEARCH_BY_ID, .id = 101};
+  Station *foundById = searchStation(tree, &keyId, SEARCH_BY_ID);
+  if (foundById)
+    printf("[TEST] Found by ID: %u => %s\n", foundById->id, foundById->name);
+  else
+    printf("[TEST] Station ID not found.\n");
+
+  // Search by Name - valid example
+SearchKey keyName = {.type = SEARCH_BY_NAME, .name = "Haifa Port"};
+  Station *foundByName = searchStation(tree, &keyName, SEARCH_BY_NAME);
+  if (foundByName)
+    printf("[TEST] Found by Name: %s => ID %u\n", foundByName->name, foundByName->id);
+  else
+    printf("[TEST] Station Name not found.\n");
+
+  // Search by Distance
+  SearchKey keyDist = {.type = SEARCH_BY_DISTANCE};
+  keyDist.location.userX = 32.08;
+  keyDist.location.userY = 34.78;
+  Station *foundByDist = searchStation(tree, &keyDist, SEARCH_BY_DISTANCE);
+  if (foundByDist)
+    printf("[TEST] Closest Station: %s (ID %u)\n", foundByDist->name, foundByDist->id);
+  else
+    printf("[TEST] No station found by distance.\n");
+}
+

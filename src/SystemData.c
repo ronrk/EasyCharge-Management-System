@@ -20,24 +20,13 @@ SystemData* loadFiles(){
   sys->carTree = initTree(compareCars,printCar,destroyCar);
   sys->stationTree = initTree(compareStation,printStation,StationDestroy);
 
-    // printf("stationTree.cmp = %p\n", sys->stationTree.cmp);
-    // printf("stationTree.print = %p\n", sys->stationTree.print);
-    // printf("stationTree.destroy = %p\n", sys->stationTree.destroy);
-
   // load stations
   int stationCount = loadStations(&sys->stationTree);
-  printf("Loaded %d stations\n", stationCount);
    // load cars
    int carCount = loadCars(&sys->carTree);
-   printf("Loaded %d cars\n", carCount);
 
   // load ports and attach to stations
   int portsCount = loadPorts(sys);
-   printf("Loaded %d ports\n", portsCount);
-
-
- 
-  
 
   // load queue
   loadLineOfCars(sys);
@@ -62,9 +51,17 @@ void* portParser(const char*line) {
   if(sscanf(line,"%u,%u,%9[^,],%d,%d,%d,%d,%d,%d,%8s",
     &stationId, &portNum, typeStr, &status, &y, &m, &d, &h, &min, license) 
       != 10){
+        // DEBUGGG
+        fprintf(stderr, "[portParser] Failed to parse line: %s\n", line);
+
         return NULL;
       }
 
+      PortType parsedType = parsePortType(typeStr);
+  if (parsedType == -1) {
+    fprintf(stderr, "[portParser] Invalid port type in line: %s\n", line);
+    return NULL;
+  }
 
   return createPort(stationId,portNum,parsePortType(typeStr),(PortStatus)status,NULL,
                     (Date){y,m,d,h,min},license);
@@ -93,7 +90,8 @@ void linkPortToStation(void*obj, void*context) {
     if(car) {
       port->p2Car = car;  // port to car
       car->pPort = port;  // car to port
-      printf("Linked car %s to port %u\n", port->license, port->num);
+      // ////[DEBUG]
+      // printf("Linked car %s to port %u\n", port->license, port->num);
     }
   }
 
@@ -103,11 +101,11 @@ void destroyFiles(SystemData *sys) {
   if(!sys) return;
 
   // free stations
-  destroyTree(sys->stationTree.root,StationDestroy);
+  destroyTree(sys->stationTree.root,sys->stationTree.destroy);
 
   // free cars
-  destroyTree(sys->carTree.root,destroyCar);
-
+  destroyTree(sys->carTree.root,sys->carTree.destroy);
+  
   free(sys);
 }
 
@@ -151,9 +149,8 @@ int loadPorts(SystemData *sys){
 }
 
 void loadLineOfCars(SystemData *sys) {
-  // Minimal implementation - just show we're loading
-  printf("Loading car queues...\n");
   
+  // Minimal implementation - just show we're loading
   FILE* file = fopen("data/LineOfCars.txt", "r");
   if(!file) {
     perror("Error opening LineOfCars.txt");
@@ -166,7 +163,6 @@ void loadLineOfCars(SystemData *sys) {
   
   while(fgets(line, sizeof(line), file)) {
     line[strcspn(line, "\r\n")] = '\0';
-    printf("Queue entry: %s\n", line);  // Just show we're processing
   }
   
   fclose(file);

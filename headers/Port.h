@@ -24,6 +24,9 @@ Port *createPort(unsigned int stationId, unsigned int num, PortType type, PortSt
 // insert port to the head of the list
 Port *insertPort(Port *head, Port *newPort);
 
+// assign car2Port
+BOOL assignCar2Port(Port* port, Car* car, Date date);
+
 // find port by num
 Port *findPort(Port *head, unsigned int num);
 
@@ -36,5 +39,14 @@ void destroyPort(void *data);
 
 // count free ports
 int countFreePorts(const Port* head);
+
+BOOL isCompatiblePortType(PortType carType, PortType portType);
+// find available port
+Port* findAvailablePort(Port* portList,PortType type);
+
+BOOL isPortAvailable(Port* port);
+
+// validate port
+BOOL isPortTypeValid(const char* pTypeKey);
 
 #endif

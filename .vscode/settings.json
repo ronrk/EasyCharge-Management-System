@@ -54,6 +54,8 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
-    "Station.C": "cpp"
+    "Station.C": "cpp",
+    "binarytree.h": "c",
+    "station.h": "c"
   }
 }

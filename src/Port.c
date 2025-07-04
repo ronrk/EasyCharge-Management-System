@@ -55,6 +55,66 @@ Port *findPort(Port *head, unsigned int num){
   return NULL;
 }
 
+Port* findAvailablePort(Port* portList, PortType type) {
+  Port* current = portList;
+
+  while (current)
+  {
+      if(current->status == FREE && isCompatiblePortType(type,current->portType)) {
+        return current;
+      }
+      current = current->next;
+
+  }
+  
+  return NULL;
+}
+
+BOOL assignCar2Port(Port* port, Car* car, Date startTime) {
+
+  if(!port||!car) {
+    fprintf(stderr, "assignCar2Port: Invalid port or car pointer.\n");
+    return FALSE;
+  }
+
+  // check if car type == port type
+  if(!isCompatiblePortType(car->portType,port->portType)) {
+    return FALSE;
+  }
+
+  // check if port is available
+  if(isPortAvailable(port)) {
+    port->p2Car = car;
+
+    strncpy(port->license,car->nLicense,8);
+    port->license[8] = '\0';
+
+    port->status = OCC;
+    port->tin = startTime;
+    car->pPort = port;
+    car->inqueue = FALSE;
+    return TRUE;
+  }
+  return FALSE;
+}
+
+BOOL isCompatiblePortType(PortType carType, PortType portType) {
+  return(carType == portType);
+}
+
+BOOL isPortAvailable(Port* port){
+  if(port->status == OCC) {
+    fprintf(stderr, "assignCar2Port: Port %u is already occupied.\n", port->num);
+    return FALSE;
+  }
+  if (port->status == OOD) {
+        fprintf(stderr, "assignCar2Port: Port %u is out-of-order.\n", port->num);
+        return FALSE;
+  }
+  
+  return TRUE;
+}
+
 void printPortList(Port *head) {
   if(head== NULL) 
   {
@@ -112,4 +172,10 @@ int countFreePorts(const Port* head) {
     current=current->next;
   }
   return count;
+}
+
+BOOL isPortTypeValid(const char* pTypeKey) {
+  return (
+    parsePortType(pTypeKey) != -1
+  );
 }

@@ -9,7 +9,6 @@ int compareCars(const void* a, const void*b){
   const Car *c1 = (const Car*)a;
   const Car *c2 = (const Car*)b;
 
-  // printf("Comparing '%s' with '%s'\n", c1->nLicense, c2->nLicense);
   return strcmp(c1->nLicense,c2->nLicense);
 }
 
@@ -36,18 +35,7 @@ Car* parseCarLine(const char* line)
   }
   // PortType
   token = strtok(NULL,",");
-  if(token) {
-    if(strcmp(token,"FAST") == 0) 
-      car->portType = FAST;
-    else if(strcmp(token,"MID")==0) 
-      car->portType = MID;
-    else if(strcmp(token,"SLOW")==0)
-      car->portType = SLOW;
-    else {
-      fprintf(stderr,"Invalid Port type: %s\n",token);
-      car->portType = SLOW;
-    }
-  }
+  car->portType = parsePortType(token);
   
   // TotalPayed
   token = strtok(NULL,",");
@@ -66,7 +54,6 @@ Car* parseCarLine(const char* line)
   // nPort *****
   car->pPort = NULL;
 
-  // printCar(car);
   return car;
 };
 
@@ -123,4 +110,8 @@ Car* searchCar(BinaryTree *carTree,const char *lisence) {
   }
   
   return NULL;
+}
+
+BOOL isLicenseValid(const char* license) {
+  return(strlen(license) == 8 || strspn(license,"0123456789")==8);
 }

@@ -54,6 +54,36 @@ Station *StationCreate(unsigned int id, const char *name, int nPorts, Coord coor
   return s;
 }
 
+void printFullStation(const void *data)
+{
+
+  const Station *station = (const Station *)data;
+  printf("\n========== Station: %s (ID: %u) ==========\n", station->name, station->id);
+  printf("Location: (%.2f, %.2f)\n", station->coord.x, station->coord.y);
+  printf("Total Ports: %d\n", station->nPorts);
+  printf("Cars in queue: %d\n", countQueueItems(station->qCar));
+
+  printf("\n-- Ports --\n");
+  if (station->portsList)
+  {
+    printPortList(station->portsList); // assumes you already implemented this
+  }
+  else
+  {
+    printf("No ports available\n");
+  }
+
+  if (!isEmpty(station->qCar))
+  {
+    printf("\n-- Queue --\n");
+    printQueue(station->qCar); // assumes you already implemented this
+  }
+  else
+  {
+    printf("\nNo cars in queue.\n");
+  }
+}
+
 void StationDestroy(void *data)
 {
   Station *station = (Station *)data;
@@ -73,22 +103,16 @@ void StationDestroy(void *data)
 
 int compareStation(const void *a, const void *b)
 {
-  // printf("[compareStation] Start\n");
-  const Station *s1 = a;
-  const Station *s2 = b;
+  Station *s1 = (Station *)a;
+  Station *s2 = (Station *)b;
 
   // Add null checks
   if (!s1 || !s2)
   {
-    // printf("[compareStation] ERROR: Null station pointer!\n");
     return 0;
   }
 
-  // printf("[compareStation] Comparing %u and %u\n", s1->id, s2->id);
   int result = (s1->id > s2->id) - (s1->id < s2->id);
-  // printf("[compareStation] Result: %d\n", result);
-
-  // return (s1->id > s2->id) - (s1->id < s2->id);
   return result;
 }
 
@@ -98,44 +122,9 @@ void printStation(const void *data)
   printf("Station ID: %u  |  Name: %s |  Ports: %d  |  Cars: %d\n", station->id, station->name, station->nPorts, station->nCars);
 }
 
-Station *insertStation(Station *root, Station *newStation)
-{
-  if (root == NULL)
-    return newStation;
-
-  int cmp = compareStation((const void *)newStation, (const void *)root);
-  if (cmp < 0)
-    root->left = insertStation(root->left, newStation);
-  else if (cmp > 0)
-    root->right = insertStation(root->right, newStation);
-  else
-  {
-    // duplicate id
-  }
-  return root;
-}
-
-void inorderStationTraversal(Station *root)
-{
-  if (root == NULL)
-    return;
-  inorderStationTraversal(root->left);
-  printStation(root);
-  inorderStationTraversal(root->right);
-}
-
-void destroyStationTree(Station *root)
-{
-  if (root == NULL)
-    return;
-  destroyStationTree(root->left);
-  destroyStationTree(root->right);
-  StationDestroy(root);
-}
-
 void *parseStationLine(const char *line)
 {
-  // printf("[Parse1] Parsing line: %s\n", line);
+
   unsigned int id;
   char name[100];
   int nPorts;
@@ -147,10 +136,10 @@ void *parseStationLine(const char *line)
     fprintf(stderr, "Failed to parse line: %s\n", line);
     return NULL;
   }
-  // printf("[Parse3] Parsed values: id=%u, name=%s, nPorts=%d, x=%.2f, y=%.2f\n", id, name, nPorts, x, y);
+
   Coord coord = {x, y};
   Station *station = StationCreate(id, name, nPorts, coord);
-  // printf("[Parse4] Station created\n");
+
   return station;
 }
 
@@ -183,8 +172,6 @@ Station *searchByNameHelper(TreeNode *node, const char *name)
     return NULL;
   Station *station = (Station *)node->data;
 
-  printf("[DEBUG] Checking Station Name: %s vs Search Name: %s\n", station->name, name);
-
   // search correct node
   if (strcmp(station->name, name) == 0)
     return station;
@@ -211,11 +198,9 @@ Station *findStationById(TreeNode *node, int id)
     return NULL;
 
   Station *station = (Station *)node->data;
-  printf("[DEBUG] Checking Station ID: %u vs Search ID: %d\n", station->id, id);
 
   if (station->id == id)
   {
-    printf("[DEBUG] Found matching ID: %u\n", station->id);
     return station;
   }
   else if (id < station->id)
@@ -253,6 +238,27 @@ void searchByDistanceHelper(TreeNode *node, DistanceSearchHelper *helper)
 
   searchByDistanceHelper(node->left, helper);
   searchByDistanceHelper(node->right, helper);
+}
+
+static void findMax(TreeNode *node, unsigned int *maxId)
+{
+
+  if (!node)
+    return;
+  Station *s = (Station *)node->data;
+  if (s->id > *maxId)
+    *maxId = s->id;
+  findMax(node->left, maxId);
+  findMax(node->right, maxId);
+}
+
+unsigned int generateUniqueStationId(BinaryTree *tree)
+{
+  unsigned int maxId = 100; // start from 100 at least
+  if (tree && tree->root)
+    findMax(tree->root, &maxId);
+
+  return maxId + 1;
 }
 
 Station *searchByDistance(BinaryTree *tree, SearchKey *key)

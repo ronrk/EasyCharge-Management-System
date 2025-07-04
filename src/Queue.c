@@ -20,10 +20,11 @@ qCar *createQueue(){
 }
 
 void destroyQueue(qCar*queue) {
-  while (!isEmpty(queue))
+  CarNode* current = queue->front;
+  while (current)
   {
-    CarNode* tmp = queue->front;
-    queue->front = queue->front->next;
+    CarNode *tmp = current;
+    current = current->next;
     free(tmp);
   }
   free(queue);
