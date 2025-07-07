@@ -4,8 +4,11 @@
 #define LICENSE_SIZE 9
 #define MAX_NAME 100
 #define RATE_CHARGE 1.2
+#define EMPTY_LICENSE "-1"
 
+#include "ErrorHandler.h"
 #include "BinaryTree.h"
+
 #include <stdio.h>
 #include <time.h>
 
@@ -58,7 +61,8 @@ typedef enum
 {
   FAST,
   MID,
-  SLOW
+  SLOW,
+  INVALID_PORT
 } PortType;
 typedef enum
 {
@@ -90,7 +94,7 @@ typedef struct
 // functions
 
 Date getCurrentDate();
-int diffInMin(Date start,Date end);
+int diffInMin(Date start, Date end);
 
 // clear input buffer avoid new line
 void clearInputBuffer();
@@ -105,7 +109,7 @@ BOOL getDoubleFromUser(double *outValue, const char *prompt);
 
 // handle enumstoStr and opposite
 const char *portTypeToStr(PortType type);
-PortType Util_parsePortType (const char* str);
+PortType Util_parsePortType(const char *str);
 const char *statusToStr(PortStatus status);
 PortStatus Util_parsePortStatus(const char *str);
 

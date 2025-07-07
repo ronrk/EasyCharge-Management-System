@@ -4,17 +4,20 @@
 #include "Port.h"
 #include "Utilis.h"
 #include "BinaryTree.h"
+#include "Station.h"
 
 typedef struct Car
 {
   char nLicense[LICENSE_SIZE];
   PortType portType;
   double totalPayed;
-  Port* pPort;
-  BOOL inqueue;
+  Port *pPort;  // p to port
+  BOOL inqueue; // car in queue?
 } Car;
 
-int compareCars(const void* a, const void*b);
+int compareCars(const void *a, const void *b);
+
+Port* getCarPort(Car* car);
 
 // print car
 void printCar(const void *data);
@@ -29,10 +32,12 @@ Car *createCar(const char *license, PortType type);
 void destroyCar(void *data);
 
 // search for car
-Car* searchCar(BinaryTree *carTree,const char *lisence);
+Car *searchCar(const BinaryTree *carTree, const char *lisence);
 
 // validate car
-BOOL isLicenseValid(const char* license);
+BOOL isLicenseValid(const char *license);
 
+// find station of queue car
+Station* findStationOfQueueCar(const TreeNode* node,const Car* car);
 
 #endif

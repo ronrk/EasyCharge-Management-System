@@ -10,7 +10,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 make: *** No rule to make target `all'.  Stop.
 
 
-# Make data base, printed on Fri Jul  4 18:10:12 2025
+# Make data base, printed on Sat Jul  5 20:25:02 2025
 
 # Variables
 
@@ -30,6 +30,7 @@ VSCODE_CRASH_REPORTER_PROCESS_TYPE = extensionHost
 CURDIR := /Users/ronrock/Documents/לימודים/שנה א/סמסטר ב/c/עבודת סוף שפת סי/finalProject
 # makefile
 SHELL = /bin/sh
+ 
 # environment
 VSCODE_NLS_CONFIG = {"userLocale":"en-us","osLocale":"en-il","resolvedLanguage":"en","defaultMessagesFile":"/Applications/Visual Studio Code.app/Contents/Resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}
 # environment
@@ -40,7 +41,6 @@ MAKEFILE_LIST :=
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 VSCODE_CWD = /
- 
 # environment
 PATH = /usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Library/Apple/usr/bin
 # environment
@@ -134,7 +134,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 28839
+VSCODE_PID = 45462
 # variable set hash-table stats:
 # Load=60/1024=6%, Rehash=0, Collisions=1/80=1%
 
@@ -144,12 +144,13 @@ VSCODE_PID = 28839
 
 # Directories
 
-# . (device 16777224, inode 36583682): 13 files, no impossibilities.
+# . (device 16777224, inode 36583682): 17 files, no impossibilities.
 
-# 13 files, no impossibilities in 1 directories.
+# 17 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
+ 
 # No implicit rules.
 
 # Files
@@ -214,11 +215,10 @@ GNUmakefile:
 # No general (`VPATH' variable) search path.
 
 # # of strings in strcache: 0
- 
 # # of strcache buffers: 0
 # strcache size: total = 0 / max = 0 / min = 4096 / avg = 0
 # strcache free: total = 0 / max = 0 / min = 4096 / avg = 0
 
-# Finished Make data base on Fri Jul  4 18:10:12 2025
+# Finished Make data base on Sat Jul  5 20:25:02 2025
 
  

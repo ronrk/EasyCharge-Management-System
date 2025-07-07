@@ -22,7 +22,7 @@ struct Station
 
 Station *StationCreate(unsigned int id, const char *name, int nPorts, Coord coord);
 
-typedef Station *(*SearchFunc)(BinaryTree *tree, SearchKey *key);
+typedef Station *(*SearchFunc)(const BinaryTree *tree, SearchKey *key);
 
 void StationDestroy(void *data);
 int compareStation(const void *a, const void *b);
@@ -35,8 +35,18 @@ unsigned int generateUniqueStationId(BinaryTree *tree);
 
 BOOL enqueueCarToStationQueue(Station *station, Car *car);
 
-// search
-Station *searchStation(BinaryTree *tree, SearchKey *key, SearchType type);
-Car *searchCarInAllQueues(const BinaryTree *stationTree, const char *license);
+void addPortToStation(Station *station, Port *port);
 
+// search
+Station *searchStation(const BinaryTree *tree, SearchKey *key);
+Car *searchCarInAllQueues(const BinaryTree *stationTree, const char *license);
+Station *findStationById(TreeNode *node, int id);
+
+Station *findStationByPort(const BinaryTree *tree, const Port *port);
+
+// ////////////////
+// ////////////////
+// ////////////////
+// ////////////////
+void printStationSummary(const void *data);
 #endif

@@ -9,9 +9,9 @@
 #include <float.h>
 #include <math.h>
 
-Station *searchById(BinaryTree *tree, SearchKey *key);
-Station *searchByName(BinaryTree *tree, SearchKey *key);
-Station *searchByDistance(BinaryTree *tree, SearchKey *key);
+Station *searchById(const BinaryTree *tree, SearchKey *key);
+Station *searchByName(const BinaryTree *tree, SearchKey *key);
+Station *searchByDistance(const BinaryTree *tree, SearchKey *key);
 
 Station *StationCreate(unsigned int id, const char *name, int nPorts, Coord coord)
 {
@@ -76,7 +76,7 @@ void printFullStation(const void *data)
   if (!isEmpty(station->qCar))
   {
     printf("\n-- Queue --\n");
-    printQueue(station->qCar); // assumes you already implemented this
+    // printQueue(station->qCar); // assumes you already implemented this
   }
   else
   {
@@ -103,8 +103,8 @@ void StationDestroy(void *data)
 
 int compareStation(const void *a, const void *b)
 {
-  Station *s1 = (Station *)a;
-  Station *s2 = (Station *)b;
+  const Station *s1 = (const Station *)a;
+  const Station *s2 = (const Station *)b;
 
   // Add null checks
   if (!s1 || !s2)
@@ -143,19 +143,29 @@ void *Station_parseLine(const char *line)
   return station;
 }
 
+void addPortToStation(Station *station, Port *port)
+{
+  if (!station || !port)
+  {
+    return;
+  }
+  station->portsList = insertPort(station->portsList, port);
+  station->nPorts++;
+}
+
 // search station
 static SearchFunc searchFunctions[SEARCH_TYPE_COUNT] = {
     searchById,
     searchByName,
     searchByDistance};
 
-Station *searchStation(BinaryTree *tree, SearchKey *key, SearchType type)
+Station *searchStation(const BinaryTree *tree, SearchKey *key)
 {
   if (!tree || !key)
     return NULL;
-  if (type < 0 || type >= SEARCH_TYPE_COUNT)
+  if (key->type < 0 || key->type >= SEARCH_TYPE_COUNT)
     return NULL;
-  return searchFunctions[type](tree, key);
+  return searchFunctions[key->type](tree, key);
 }
 
 typedef struct
@@ -185,7 +195,7 @@ Station *searchByNameHelper(TreeNode *node, const char *name)
   return searchByNameHelper(node->right, name);
 }
 
-Station *searchByName(BinaryTree *tree, SearchKey *key)
+Station *searchByName(const BinaryTree *tree, SearchKey *key)
 {
   if (!tree || !key)
     return NULL;
@@ -213,7 +223,7 @@ Station *findStationById(TreeNode *node, int id)
   }
 }
 
-Station *searchById(BinaryTree *tree, SearchKey *key)
+Station *searchById(const BinaryTree *tree, SearchKey *key)
 {
   if (!tree || !key)
     return NULL;
@@ -261,7 +271,7 @@ unsigned int generateUniqueStationId(BinaryTree *tree)
   return maxId + 1;
 }
 
-Station *searchByDistance(BinaryTree *tree, SearchKey *key)
+Station *searchByDistance(const BinaryTree *tree, SearchKey *key)
 {
   if (!tree)
     return NULL;
@@ -307,9 +317,75 @@ Car *searchCarInAllQueues(const BinaryTree *stationTree, const char *license)
   return searchInQueueHelper(stationTree->root, license);
 }
 
+Station *findStationByPort(const BinaryTree *tree, const Port *port)
+{
+  if (!tree || !tree->root || !port)
+    return NULL;
+
+  // Iterative in-order traversal stack
+  TreeNode *stack[1000];
+  int top = -1;
+  TreeNode *current = tree->root;
+
+  while (current || top >= 0)
+  {
+    while (current)
+    {
+      stack[++top] = current;
+      current = current->left;
+    }
+
+    current = stack[top--];
+    Station *station = (Station *)current->data;
+
+    // Check if the port exists in this station's list
+    Port *p = station->portsList;
+    while (p)
+    {
+      if (p == port)
+      { // Compare by pointer (memory address)
+        return station;
+      }
+      p = p->next;
+    }
+
+    current = current->right;
+  }
+  return NULL;
+}
+
 BOOL enqueueCarToStationQueue(Station *station, Car *car)
 {
   if (!station || !car)
     return FALSE;
-  return enqueue(station->qCar, car);
+
+  if (enqueue(station->qCar, car))
+  {
+    car->inqueue = TRUE;
+    station->nCars++;
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+// //////////////////////////////////
+void printStationSummary(const void *data)
+{
+  const Station *station = (const Station *)data;
+  printf("Station %u - %s:\n", station->id, station->name);
+
+  // Count ports
+  int portCount = 0;
+  Port *p = station->portsList;
+  while (p)
+  {
+    portCount++;
+    p = p->next;
+  }
+  printf("  Ports: %d\n", portCount);
+
+  // Count queue length
+  int queueCount = countQueueItems(station->qCar);
+  printf("  Queue length: %d\n", queueCount);
 }

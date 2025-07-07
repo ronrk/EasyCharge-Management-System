@@ -16,6 +16,8 @@
         "src/Port.c",
         "src/Station.c",
         "src/Menu.c",
+        "src/Test.c",
+        "src/ErrorHandler.c",
         "-Iheaders",
         "-o",
         "my_program"

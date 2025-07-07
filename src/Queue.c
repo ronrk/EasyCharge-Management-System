@@ -78,8 +78,6 @@ BOOL enqueue(qCar *queue, Car *car)
 }
 
 
-  
-
 Car *dequeue(qCar *queue) {
   if(isEmpty(queue)) return NULL;
   return removeNode(queue,NULL,queue->front);
@@ -87,22 +85,40 @@ Car *dequeue(qCar *queue) {
 
 Car* dequeueByPortType(qCar* queue,PortType portType){
   if(!queue||isEmpty(queue)) {
+    printf("[Dequeue] Queue empty or NULL.\n");
     return NULL;
   }
 
   CarNode* current = queue->front;
   CarNode *prev = NULL;
 
+  printf("[Dequeue] Queue empty or NULL.\n");
+
   while (current)
   {
     if(current->data&&current->data->portType == portType) {
+      printf("[Dequeue] Found car %s matching port type %s.\n",
+                   current->data->nLicense, portTypeToStr(portType));
       return removeNode(queue,prev,current);
     }
 
     prev = current;
     current = current->next;
   }
+  char msg[128];
+  snprintf(msg,sizeof(msg),"No car in queue matching port type %s",portTypeToStr(portType));
+  displayError(UI_WARNING,msg);
+
+  printf("[Dequeue] No car in queue matching port type %s.\n", portTypeToStr(portType));
   return NULL;
+}
+
+Car *getFront(const qCar *queue) {
+  if(queue == NULL|| queue->front == NULL) {
+    return NULL; //empty queue
+  }
+
+  return queue->front->data;
 }
 
 void printQueue(const qCar *queue) {
@@ -120,13 +136,6 @@ void printQueue(const qCar *queue) {
   }
 }
 
-Car *getFront(const qCar *queue) {
-  if(queue == NULL|| queue->front == NULL) {
-    return NULL; //empty queue
-  }
-
-  return queue->front->data;
-}
 
 int countQueueItems(const qCar* queue) {
   if(!queue || !queue->front) return 0;

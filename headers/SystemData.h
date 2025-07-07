@@ -22,7 +22,7 @@ typedef struct LineOfCarsEntry
 // load files
 SystemData *loadFiles();
 // destroy files
-void destroyFiles(SystemData *sys);
+void saveAndCleanupSystem(SystemData *sys);
 
 // load individual files
 int loadStations(BinaryTree *stationTree);
@@ -31,4 +31,7 @@ int loadPorts(SystemData *sys);
 int loadLineOfCars(SystemData *sys);
 
 
+
+
+void runSystemTests(SystemData *sys);
 #endif

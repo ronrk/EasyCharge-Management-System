@@ -1,5 +1,6 @@
 #ifndef BINARYTREE_H
 #define BINARYTREE_H
+#include "ErrorHandler.h"
 
 // Function Pointers:
 typedef int (*CompareFunc)(const void *, const void *);
@@ -19,6 +20,7 @@ typedef struct TreeNode
 typedef struct
 {
   TreeNode *root;
+  
   CompareFunc cmp;
   PrintFunc print;
   FreeFunc destroy;

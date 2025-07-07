@@ -1,5 +1,6 @@
 #include "../headers/Utilis.h"
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -86,7 +87,7 @@ BOOL getDoubleFromUser(double* outValue,const char* prompt) {
     double val = strtod(input,&endptr);
 
     if(*endptr!='\0') {
-      printf("Invalid number, please try again.\n");
+      displayError(UI_WARNING,"Invalid number, please try again");
       continue;
     }
     *outValue = val;
@@ -94,31 +95,46 @@ BOOL getDoubleFromUser(double* outValue,const char* prompt) {
   }
   
 }
+
 BOOL getCoordFromUser(Coord *coord, const char* promptX, const char* promptY){
-  if(!coord) return FALSE;
-
-  if(!getDoubleFromUser(&coord->x,promptX)) {
-    return FALSE;
-  }
-
-  if(!getDoubleFromUser(&coord->y,promptY)) {
-    return FALSE;
-  }
+  if(!coord 
+    || !getDoubleFromUser(&coord->x,promptX) 
+    || !getDoubleFromUser(&coord->y,promptY)) 
+      return FALSE;
 
   return TRUE;
 
 }
 
+void trimNewLine(char* line) {
+  if (!line) return;
+  line[strcspn(line, "\r\n")] = '\0';
+}
+
+int checkLineOverflow(FILE* file,char* line,size_t maxLen, int lineNum,const char* filename){
+  if(strlen(line) == maxLen - 1 && line[maxLen - 2] != '\n'){
+    fprintf(stderr,"Line %d too long in %s\n", lineNum, filename);
+    int ch;
+    while ((ch = fgetc(file)) != EOF && ch != '\n');
+    return 1; //overflow
+    
+  }
+  return 0; //no overflow
+}
+
 int loadDataFile(const FileLoaderConfig *config) {
+  char msg[128];
   // 1. Validate configuration
   if(!config || !config->filename || !config->parser || !config->destroyObject) {
-    fprintf(stderr, "Invalid loader configuration\n");
+    displayError(ERR_LOADING_DATA,"Invalid loader configuration\n");
     return -1;
   }
 
   // 2. Open file
   FILE* file = fopen(config->filename, "r");
   if(!file) {
+    snprintf(msg,sizeof(msg),"Failed to open file from %s",config->filename);
+    displayError(ERR_LOADING_DATA,msg);
     perror(config->filename);
     return -1;
   }
@@ -128,7 +144,7 @@ int loadDataFile(const FileLoaderConfig *config) {
     char header[256];
     if(!fgets(header, sizeof(header), file)) {
       fclose(file);
-      return 0;  // Empty file is not an error
+      return 0;  // empty file
     }
   }
 
@@ -139,30 +155,21 @@ int loadDataFile(const FileLoaderConfig *config) {
   
   while(fgets(line, sizeof(line), file)) {
     lineNum++;
-    
-    // Remove newline
-    line[strcspn(line, "\r\n")] = '\0';
-    
-    // Check for overflow
-    if(strlen(line) == sizeof(line)-1 && line[sizeof(line)-2] != '\n') {
-      fprintf(stderr, "Line %d too long in %s\n", lineNum, config->filename);
-      // Consume remaining line
-      int ch;
-      while((ch = fgetc(file)) != EOF && ch != '\n');
+    trimNewLine(line);
+    if(checkLineOverflow(file,line,sizeof(line),lineNum,config->filename)) {
       continue;
     }
 
+    
     // 5. Parse line
     void* obj = config->parser(line);
     if(!obj) {
-      fprintf(stderr, "Parse error at %s:%d\n", config->filename, lineNum);
       continue;
     }
 
     // 6. Insert to tree if requested
     if(config->targetTree) {
       if(!insertBST(config->targetTree, obj)) {
-        fprintf(stderr, "Insertion failed at %s:%d\n", config->filename, lineNum);
         config->destroyObject(obj);
         continue;
       }
@@ -201,7 +208,7 @@ PortType Util_parsePortType (const char* str) {
   // if invalid
   fprintf(stderr,"Unknown port type: '%s'\n",str);
 
-  return -1;
+  return INVALID_PORT;
 }
 
 const char* statusToStr(PortStatus status) {

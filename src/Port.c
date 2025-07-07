@@ -4,35 +4,25 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <string.h>
 
 
-Port *createPort(unsigned int stationId,unsigned int num, PortType type,PortStatus status,Car* car,Date t,const char* license) {
-  Port* newPort = malloc(sizeof(Port));
-  if(!newPort) {
+Port *createPort(unsigned int num, PortType type,PortStatus status,Date t) {
+  Port* port = (Port*)malloc(sizeof(Port));
+  if(!port) {
     perror("Failed alocate memory on Port");
     return NULL;
   }
-  newPort->stationId = stationId;
-  newPort->num = num;
-  newPort->portType = type;
-  newPort->status = status;
 
-  if(car) newPort->p2Car = car;
-  else NULL;
-  
-  strncpy(newPort->license,license,8);
-  newPort->license[8] = '\0';
+  port->num = num;
+  port->portType = type;
+  port->status = status;
+  port->p2Car = NULL;
+  port->tin = t;
 
-  // initialize time
-  newPort->tin.year=t.year;
-  newPort->tin.month=t.month;
-  newPort->tin.day = t.day;
-  newPort->tin.hour = t.hour;
-  newPort->tin.min = t.min;
+  port->next = NULL;
 
-  newPort->next = NULL;
-
-  return newPort;
+  return port;
 }
 
 Port *insertPort(Port* head, Port*newPort) {
@@ -75,31 +65,29 @@ Port* findAvailablePort(Port* portList, PortType type) {
 }
 
 BOOL assignCar2Port(Port* port, Car* car, Date startTime) {
-
   if(!port||!car) {
-    fprintf(stderr, "assignCar2Port: Invalid port or car pointer.\n");
+    displayError(ERR_LOADING_DATA, "[assignCar2Port] Invalid port or car pointer");
     return FALSE;
   }
 
-  // check if car type == port type
-  if(!isCompatiblePortType(car->portType,port->portType)) {
+  // Check if port is available
+  if (!isPortAvailable(port)) {
     return FALSE;
   }
 
-  // check if port is available
-  if(isPortAvailable(port)) {
-    port->p2Car = car;
-
-    strncpy(port->license,car->nLicense,8);
-    port->license[8] = '\0';
-
-    port->status = OCC;
-    port->tin = startTime;
-    car->pPort = port;
-    car->inqueue = FALSE;
+  //cheack portType compatiblity
+  if (!isCompatiblePortType(car->portType, port->portType)) {
+    return FALSE;
+  }
+   // assignCar2Port
+  port->p2Car = car;
+  port->tin = startTime;
+  port->status = OCC;
+  car->pPort = port;
+  car->inqueue = FALSE;
+    
     return TRUE;
-  }
-  return FALSE;
+
 }
 
 BOOL isCompatiblePortType(PortType carType, PortType portType) {
@@ -107,13 +95,17 @@ BOOL isCompatiblePortType(PortType carType, PortType portType) {
 }
 
 BOOL isPortAvailable(Port* port){
-  if(port->status == OCC) {
-    fprintf(stderr, "assignCar2Port: Port %u is already occupied.\n", port->num);
+  char msg[128];
+  if(!port) {
+    printf("[DEBUG] isPortAvailable called with NULL port pointer\n");
+    return FALSE;
+  }
+
+  if(port->status == OCC && port->p2Car != NULL) {
     return FALSE;
   }
   if (port->status == OOD) {
-        fprintf(stderr, "assignCar2Port: Port %u is out-of-order.\n", port->num);
-        return FALSE;
+    return FALSE;
   }
   
   return TRUE;
@@ -137,15 +129,9 @@ void printPortList(Port *head) {
 }
 
 void printPort(const Port* port) {
+
   printf("Port Number: %u  |  Type: %s  |  Status: %s\n",port->num,portTypeToStr(port->portType),statusToStr(port->status));
 
-      if(port->p2Car) {
-        printf("  Charging Car: %s\n",port->p2Car->nLicense);
-
-        printf("Since: %04d-%02d-%02d %02d:%02d\n",port->tin.year,port->tin.month,port->tin.day,port->tin.hour,port->tin.min);
-      } else {
-        printf("  Charging Car: None\n");
-      }
 }
 
 void destroyPortList(Port *head) {

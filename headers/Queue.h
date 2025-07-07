@@ -24,11 +24,11 @@ int isEmpty(const qCar *queue);
 BOOL enqueue(qCar *queue, Car *car);
 Car *dequeue(qCar *queue);
 
-Car* dequeueByPortType(qCar* queue,PortType portType);
+Car *dequeueByPortType(qCar *queue, PortType portType);
 
 Car *getFront(const qCar *queue);
 void printQueue(const qCar *queue);
 
 // count queue items
-int countQueueItems(const qCar* queue);
+int countQueueItems(const qCar *queue);
 #endif

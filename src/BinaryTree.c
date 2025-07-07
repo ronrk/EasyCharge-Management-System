@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 // Create a new TreeNode
 TreeNode* createNode(void* data)
 {
@@ -46,7 +47,7 @@ TreeNode* insertNode (TreeNode* root, void* data,CompareFunc cmp)
 // public insert a node
 int insertBST(BinaryTree *tree,void *data) {
   if(tree==NULL) {
-     printf(" NULL tree pointer\n");
+    displayError(ERR_LOADING_DATA,"[insertBST]:NULL tree pointer");
     return 0;
   }
 
@@ -99,6 +100,11 @@ void destroyTree(TreeNode *root,FreeFunc destroy) {
     destroy(root->data);
 
   free(root);
+}
+
+int countTreeNodes(TreeNode* node) {
+    if (!node) return 0;
+    return 1 + countTreeNodes(node->left) + countTreeNodes(node->right);
 }
 
 // init BTS
