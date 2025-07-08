@@ -1,6 +1,9 @@
-#include "../headers/Utilis.h"
+#include "Utilis.h"
 
+#include "ErrorHandler.h"
+#include "BinaryTree.h"
 
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -122,72 +125,6 @@ int checkLineOverflow(FILE* file,char* line,size_t maxLen, int lineNum,const cha
   return 0; //no overflow
 }
 
-int loadDataFile(const FileLoaderConfig *config) {
-  char msg[128];
-  // 1. Validate configuration
-  if(!config || !config->filename || !config->parser || !config->destroyObject) {
-    displayError(ERR_LOADING_DATA,"Invalid loader configuration\n");
-    return -1;
-  }
-
-  // 2. Open file
-  FILE* file = fopen(config->filename, "r");
-  if(!file) {
-    snprintf(msg,sizeof(msg),"Failed to open file from %s",config->filename);
-    displayError(ERR_LOADING_DATA,msg);
-    perror(config->filename);
-    return -1;
-  }
-
-  // 3. Skip header if requested
-  if(config->skipHeader) {
-    char header[256];
-    if(!fgets(header, sizeof(header), file)) {
-      fclose(file);
-      return 0;  // empty file
-    }
-  }
-
-  // 4. Process lines
-  char line[512];
-  int count = 0;
-  int lineNum = 0;
-  
-  while(fgets(line, sizeof(line), file)) {
-    lineNum++;
-    trimNewLine(line);
-    if(checkLineOverflow(file,line,sizeof(line),lineNum,config->filename)) {
-      continue;
-    }
-
-    
-    // 5. Parse line
-    void* obj = config->parser(line);
-    if(!obj) {
-      continue;
-    }
-
-    // 6. Insert to tree if requested
-    if(config->targetTree) {
-      if(!insertBST(config->targetTree, obj)) {
-        config->destroyObject(obj);
-        continue;
-      }
-    }
-
-    // 7. Post-process
-    if(config->processor) {
-      config->processor(obj, config->context);
-    }
-    
-    count++;
-  }
-
-  // 8. Cleanup
-  fclose(file);
-  return count;
-}
-
 const char* portTypeToStr(PortType type) {
   switch (type)
   {
@@ -220,6 +157,11 @@ const char* statusToStr(PortStatus status) {
   
   default: return "Unknown";
   }
+}
+
+Date createDate(int y, int m, int d, int h,int min){
+
+  return(Date){.year = y,.month = m,.day = d,.min = min,.hour = h};
 }
 
 PortStatus Util_parsePortStatus (const char* str) { 

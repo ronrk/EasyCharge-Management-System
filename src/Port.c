@@ -1,10 +1,9 @@
-#include "../headers/Port.h"
-#include "../headers/Cars.h"
-// #include "../headers/Utilis.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <string.h>
+#include "Port.h"
+#include "ErrorHandler.h"
+#include "Cars.h"
+#include "Station.h"
+#include "Queue.h"
+
 
 
 Port *createPort(unsigned int num, PortType type,PortStatus status,Date t) {
@@ -46,24 +45,6 @@ Port *findPort(Port *head, unsigned int num){
   return NULL;
 }
 
-Port* findAvailablePort(Port* portList, PortType type) {
-  printf("[DEBUG] Scanning port list for type: %s\n", portTypeToStr(type));
-  Port* current = portList;
-
-  while (current)
-  {
-      if(current->status == FREE && isCompatiblePortType(type,current->portType)) {
-        printf("[DEBUG] Found matching port: #%u (Status: %s)\n",
-       current->num, statusToStr(current->status));
-        return current;
-      }
-      current = current->next;
-
-  }
-  
-  return NULL;
-}
-
 BOOL assignCar2Port(Port* port, Car* car, Date startTime) {
   if(!port||!car) {
     displayError(ERR_LOADING_DATA, "[assignCar2Port] Invalid port or car pointer");
@@ -87,6 +68,36 @@ BOOL assignCar2Port(Port* port, Car* car, Date startTime) {
   car->inqueue = FALSE;
     
     return TRUE;
+
+}
+
+void unlinkCarPort(Car* car){
+  if(!car||!car->pPort) return;
+
+  Port *port = car->pPort;
+  port->status = FREE;
+  port->p2Car = NULL;
+  car->pPort = NULL;
+}
+
+void tryAssignNextCarFromQueue(Station *station, Port *port, Date now) {
+  if( !station|| !port|| !station->qCar || isEmpty(station->qCar)) return;
+
+  PortType pType = port->portType;
+  Car* nextCar = dequeueByPortType(station->qCar,pType);
+
+  if(nextCar){
+    printf("Next compatible car in queue: %s\n", nextCar->nLicense);
+    if(assignCar2Port(port,nextCar,now)){
+      printf("Assigned car %s to port %u at station %s.\n", nextCar->nLicense, port->num, station->name);
+    } else {
+      printf("failed to assign car\n");
+      enqueue(station->qCar,nextCar);
+      nextCar->inqueue = TRUE;
+    }
+  } else {
+    printf("No compatible car in queue with port type %s\n",portTypeToStr(port->portType));
+  }
 
 }
 
@@ -169,3 +180,23 @@ BOOL isPortTypeValid(const char* pTypeKey) {
     Util_parsePortType(pTypeKey) != -1
   );
 }
+
+
+
+// Port* findAvailablePort(Port* portList, PortType type) {
+//   printf("[DEBUG] Scanning port list for type: %s\n", portTypeToStr(type));
+//   Port* current = portList;
+
+//   while (current)
+//   {
+//       if(current->status == FREE && isCompatiblePortType(type,current->portType)) {
+//         printf("[DEBUG] Found matching port: #%u (Status: %s)\n",
+//        current->num, statusToStr(current->status));
+//         return current;
+//       }
+//       current = current->next;
+
+//   }
+  
+//   return NULL;
+// }

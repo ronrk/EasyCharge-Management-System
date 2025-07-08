@@ -1,22 +1,27 @@
 #ifndef QUEUE_H
 #define QUEUE_H
-#include "Port.h"
-typedef struct Car Car;
 
-typedef struct CarNode
+#include "Utilis.h"
+
+typedef struct Car Car;
+typedef struct CarNode CarNode;
+typedef struct qCar qCar;
+
+struct CarNode
 {
   Car *data;
   struct CarNode *next;
-} CarNode;
+};
 
-typedef struct
+struct qCar
 {
   CarNode *front;
   CarNode *rear;
-} qCar;
+};
 
 // funcytions
 void initQueue(qCar *queue);
+
 qCar *createQueue();
 void destroyQueue(qCar *queue);
 

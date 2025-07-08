@@ -1,6 +1,11 @@
-#include "../headers/Utilis.h"
-#include "../headers/BinaryTree.h"
-#include "../headers/Cars.h"
+#include "Cars.h"
+#include "Port.h"
+#include "ErrorHandler.h"
+#include "Utilis.h"
+#include "BinaryTree.h"
+#include "Station.h"
+#include "Queue.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

@@ -1,6 +1,8 @@
 #ifndef BINARYTREE_H
 #define BINARYTREE_H
-#include "ErrorHandler.h"
+
+#include <stdio.h>
+#include <stdlib.h>
 
 // Function Pointers:
 typedef int (*CompareFunc)(const void *, const void *);
@@ -17,7 +19,7 @@ typedef struct TreeNode
 
 // configiration for binary tree
 
-typedef struct
+typedef struct BinaryTree
 {
   TreeNode *root;
   
@@ -30,14 +32,13 @@ typedef struct
 // init a BinaryTree with function pointers
 BinaryTree initTree(CompareFunc cmp, PrintFunc print, FreeFunc destroy);
 
+
 // insert data to the tree
 TreeNode *insertNode(TreeNode *root, void *data, CompareFunc cmp);
 
 // insert data
 int insertBST(BinaryTree *bst, void *data);
 
-// search data
-void *searchBST(BinaryTree *tree, const void *data);
 
 // count nodes
 int countNodes(TreeNode *root);
@@ -45,8 +46,16 @@ int countNodes(TreeNode *root);
 // destroy the tree
 void destroyTree(TreeNode *root, FreeFunc destroy);
 
-// inorder Traversal
-void inorderTraversal(TreeNode *root, PrintFunc print);
+
 void inorderBST(BinaryTree *tree, void (*printFunc)(const void *));
+
+
+
+
+// inorder Traversal
+// void inorderTraversal(TreeNode *root, PrintFunc print);
+
+// search data
+// void *searchBST(BinaryTree *tree, const void *data);
 
 #endif // BINARYTREE_H

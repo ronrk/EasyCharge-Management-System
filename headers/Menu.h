@@ -1,13 +1,19 @@
 #ifndef MENU_H
 #define MENU_H
+#include "Utilis.h"
 
-#include "SystemData.h"
-#include "Port.h"
 
-typedef struct menu
+typedef struct MenuSystem MenuSystem;
+typedef struct SystemData SystemData;
+typedef struct BinaryTree BinaryTree;
+typedef struct Station Station;
+typedef struct Port Port;
+typedef struct Car Car;
+
+struct MenuSystem
 {
   SystemData *sys;
-} MenuSystem;
+};
 
 // init main menu
 MenuSystem initMenu(SystemData *sys);
@@ -34,6 +40,16 @@ void checkCarStatus(const BinaryTree* carTree,const BinaryTree* stationTree);
 
 // 4: Stop Charge
 void stopCharge(BinaryTree* stationTree,BinaryTree* carTree);
+void processStopCharge(Car *car,BinaryTree* stationTree);
+Car * findCarToStopCharge(BinaryTree* carTree, char* license);
+
+// 5. Display all stations
+void dispAllSt(BinaryTree* stationTree);
+
+// 6. display cars at station
+void dispCarsAtSt(BinaryTree* stationTree);
+void displayWaitingsCars(const Station* station);
+void displayChargingCars(const Station* station);
 
 // TEST OPTIONS
 void displaySystemStatus(const BinaryTree *stationTree, const BinaryTree *carTree);

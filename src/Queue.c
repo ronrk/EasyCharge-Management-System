@@ -1,7 +1,12 @@
-#include "../headers/Queue.h"
+#include "Queue.h"
+
+#include "Port.h"
 #include "Cars.h"
+#include "ErrorHandler.h"
+
 #include <stdlib.h>
 #include <stdio.h>
+
 
 static Car* removeNode(qCar* queue,CarNode *prev, CarNode *toRemove){
   if(!queue||!toRemove) return NULL;
@@ -22,12 +27,6 @@ static Car* removeNode(qCar* queue,CarNode *prev, CarNode *toRemove){
   Car *car = toRemove->data;
   free(toRemove);
   return car;
-}
-
-void initQueue(qCar*queue) 
-{
-  queue->front = NULL;
-  queue->rear = NULL;
 }
 
 qCar *createQueue() {
@@ -77,7 +76,6 @@ BOOL enqueue(qCar *queue, Car *car)
   return TRUE; //SUCCESS
 }
 
-
 Car *dequeue(qCar *queue) {
   if(isEmpty(queue)) return NULL;
   return removeNode(queue,NULL,queue->front);
@@ -91,8 +89,6 @@ Car* dequeueByPortType(qCar* queue,PortType portType){
 
   CarNode* current = queue->front;
   CarNode *prev = NULL;
-
-  printf("[Dequeue] Queue empty or NULL.\n");
 
   while (current)
   {
@@ -136,7 +132,6 @@ void printQueue(const qCar *queue) {
   }
 }
 
-
 int countQueueItems(const qCar* queue) {
   if(!queue || !queue->front) return 0;
 
@@ -149,4 +144,10 @@ int countQueueItems(const qCar* queue) {
   }
 
   return count;
+}
+
+void initQueue(qCar*queue) 
+{
+  queue->front = NULL;
+  queue->rear = NULL;
 }

@@ -1,8 +1,10 @@
-#include "../headers/Station.h"
-#include "../headers/Queue.h"
-#include "../headers/Port.h"
+#include "Station.h"
+#include "Queue.h"
+#include "Port.h"
 #include "Cars.h"
 #include "BinaryTree.h"
+#include "Utilis.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -22,6 +24,7 @@ Station *StationCreate(unsigned int id, const char *name, int nPorts, Coord coor
     perror("Failed Allocation Memory Create Station\n");
     return NULL;
   }
+  printf("[DEBUG] StationCreate returns %p\n", (void *)s);
   // printf("[Create3] Allocated station struct\n");
   // copy name
   s->name = strdup(name);
@@ -202,27 +205,6 @@ Station *searchByName(const BinaryTree *tree, SearchKey *key)
   return searchByNameHelper(tree->root, key->name);
 }
 
-Station *findStationById(TreeNode *node, int id)
-{
-  if (node == NULL)
-    return NULL;
-
-  Station *station = (Station *)node->data;
-
-  if (station->id == id)
-  {
-    return station;
-  }
-  else if (id < station->id)
-  {
-    return findStationById(node->left, id);
-  }
-  else
-  {
-    return findStationById(node->right, id);
-  }
-}
-
 Station *searchById(const BinaryTree *tree, SearchKey *key)
 {
   if (!tree || !key)
@@ -329,6 +311,7 @@ Station *findStationByPort(const BinaryTree *tree, const Port *port)
 
   while (current || top >= 0)
   {
+
     while (current)
     {
       stack[++top] = current;
@@ -338,15 +321,30 @@ Station *findStationByPort(const BinaryTree *tree, const Port *port)
     current = stack[top--];
     Station *station = (Station *)current->data;
 
+    printf("Checking station %s (%p) portsList head: %p\n",
+           station->name, (void *)station, (void *)station->portsList);
+    int limit = 100;
     // Check if the port exists in this station's list
     Port *p = station->portsList;
     while (p)
     {
+      if (--limit <= 0)
+      {
+        printf("⚠️  Emergency break: potential circular reference in port list of station %s\n", station->name);
+        break; // instead of exit(1)
+      }
+      // printf("  Port at %p, p->p2Car = %p\n", (void *)p, (void *)p->p2Car);
       if (p == port)
       { // Compare by pointer (memory address)
+        printf("  Found matching port!\n");
         return station;
       }
       p = p->next;
+    }
+    if (limit <= 0)
+    {
+      printf("⚠️  Circular port list detected in station: %s\n", station->name);
+      exit(1);
     }
 
     current = current->right;
@@ -369,23 +367,67 @@ BOOL enqueueCarToStationQueue(Station *station, Car *car)
   return FALSE;
 }
 
+Station *findStationById(TreeNode *node, int id)
+{
+  if (node == NULL)
+    return NULL;
+
+  Station *station = (Station *)node->data;
+
+  if (station->id == id)
+  {
+    return station;
+  }
+  else if (id < station->id)
+  {
+    return findStationById(node->left, id);
+  }
+  else
+  {
+    return findStationById(node->right, id);
+  }
+}
+
+Station *findStationByCar(BinaryTree *stationTree, Car *car)
+{
+  if (!stationTree || !car || !car->pPort)
+    return NULL;
+
+  return findStationByPort(stationTree, car->pPort);
+}
+
 // //////////////////////////////////
 void printStationSummary(const void *data)
 {
   const Station *station = (const Station *)data;
-  printf("Station %u - %s:\n", station->id, station->name);
+  if (!station)
+    return;
+
+  printf("\t|%s (%u):|\n", station->name, station->id);
 
   // Count ports
-  int portCount = 0;
+  int totalPorts = 0, occupied = 0, ood = 0, fast = 0, mid = 0, slow = 0;
   Port *p = station->portsList;
   while (p)
   {
-    portCount++;
+    totalPorts++;
+    if (p->status != OOD)
+      ood++;
+    if (p->status == OCC)
+      occupied++;
+
+    if (p->portType == SLOW)
+      slow++;
+    else if (p->portType == MID)
+      mid++;
+    else if (p->portType == FAST)
+      fast++;
+
     p = p->next;
   }
-  printf("  Ports: %d\n", portCount);
 
   // Count queue length
   int queueCount = countQueueItems(station->qCar);
-  printf("  Queue length: %d\n", queueCount);
+  printf("Total Ports: %d | Out-Of-Order: %d | Occupied: %d | Queue: %d\n", totalPorts, ood, occupied, queueCount);
+  printf("Port Types: FAST: %d | MID: %d | SLOW: %d\n", fast, mid, slow);
 }

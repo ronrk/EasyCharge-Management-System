@@ -6,11 +6,8 @@
 #define RATE_CHARGE 1.2
 #define EMPTY_LICENSE "-1"
 
-#include "ErrorHandler.h"
-#include "BinaryTree.h"
-
 #include <stdio.h>
-#include <time.h>
+
 
 typedef enum
 {
@@ -34,27 +31,6 @@ typedef struct
     double userY;
   } location;
 } SearchKey;
-
-// function pointer for parsing line from text file to struct
-typedef void *(*FileLineProcessor)(const char *line, void *context);
-int processFileLines(const char *filename, FileLineProcessor processor, void *context, int skipHeader);
-
-// file loader types
-typedef void *(*ParseLineFunc)(const char *line);
-typedef void (*PostProcessFunction)(void *obj, void *context);
-
-typedef struct
-{
-  const char *filename;             // file to load
-  BinaryTree *targetTree;           // tree to insert to
-  ParseLineFunc parser;             // function to parse a line
-  PostProcessFunction processor;    // optional post processor
-  void *context;                    // additional data for process
-  void (*destroyObject)(void *obj); // object destroy
-  int skipHeader;                   // skip header?
-} FileLoaderConfig;
-
-int loadDataFile(const FileLoaderConfig *config);
 
 // enums
 typedef enum
@@ -95,6 +71,7 @@ typedef struct
 
 Date getCurrentDate();
 int diffInMin(Date start, Date end);
+Date createDate(int y, int m, int d, int h,int min);
 
 // clear input buffer avoid new line
 void clearInputBuffer();
@@ -107,7 +84,7 @@ BOOL isCancelInput(const char *str);
 BOOL getCoordFromUser(Coord *coord, const char *promptX, const char *promptY);
 BOOL getDoubleFromUser(double *outValue, const char *prompt);
 
-// handle enumstoStr and opposite
+// handle enums to Str and opposite
 const char *portTypeToStr(PortType type);
 PortType Util_parsePortType(const char *str);
 const char *statusToStr(PortStatus status);
@@ -125,5 +102,9 @@ BOOL getLineFromUser(char *buffer, size_t size);
 BOOL getInputAndCancel(char *buffer, size_t size, const char *prompt);
 
 BOOL parseStationInput(const char *input, SearchKey *key, SearchType *outType);
+
+void trimNewLine(char *line);
+
+int checkLineOverflow(FILE *file, char *line, size_t maxLen, int lineNum, const char *filename);
 
 #endif // UTILIS_H

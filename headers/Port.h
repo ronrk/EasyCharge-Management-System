@@ -1,11 +1,18 @@
 #ifndef PORT_H
 #define PORT_H
 
+
 #include "Utilis.h"
 
-typedef struct Car Car;
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-typedef struct Port
+typedef struct Car Car;
+typedef struct Station Station;
+
+typedef struct Port Port;
+struct Port
 {
   unsigned int num;
   PortType portType;
@@ -13,7 +20,7 @@ typedef struct Port
   Car *p2Car; // car in port
   Date tin;   // time for start charge
   struct Port *next;
-} Port;
+};
 
 // functions
 
@@ -25,6 +32,9 @@ Port *insertPort(Port *head, Port *newPort);
 
 // assign car2Port
 BOOL assignCar2Port(Port *port, Car *car, Date date);
+// unlink carPort
+void unlinkCarPort(Car* car);
+void tryAssignNextCarFromQueue(Station *station, Port *port, Date now);
 
 // find port by num
 Port *findPort(Port *head, unsigned int num);
@@ -40,12 +50,14 @@ void destroyPort(void *data);
 int countFreePorts(const Port *head);
 
 BOOL isCompatiblePortType(PortType carType, PortType portType);
-// find available port
-Port *findAvailablePort(Port *portList, PortType type);
+
 
 BOOL isPortAvailable(Port *port);
 
 // validate port
 BOOL isPortTypeValid(const char *pTypeKey);
+
+// find available port
+// Port *findAvailablePort(Port *portList, PortType type);
 
 #endif

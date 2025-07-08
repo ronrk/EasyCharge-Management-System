@@ -2,9 +2,12 @@
 #define STATION_H
 
 #include "Utilis.h"
-#include "Queue.h"
-#include "Port.h"
-#include "BinaryTree.h"
+
+typedef struct Port Port;
+typedef struct Car Car;
+typedef struct qCar qCar;
+typedef struct BinaryTree BinaryTree;
+typedef struct TreeNode TreeNode;
 
 typedef struct Station Station;
 struct Station
@@ -40,13 +43,17 @@ void addPortToStation(Station *station, Port *port);
 // search
 Station *searchStation(const BinaryTree *tree, SearchKey *key);
 Car *searchCarInAllQueues(const BinaryTree *stationTree, const char *license);
-Station *findStationById(TreeNode *node, int id);
 
 Station *findStationByPort(const BinaryTree *tree, const Port *port);
 
+Station *findStationById(TreeNode *node, int id);
+
+Station *findStationByCar(BinaryTree *stationTree, Car *car);
+
 // ////////////////
 // ////////////////
 // ////////////////
 // ////////////////
+
 void printStationSummary(const void *data);
 #endif

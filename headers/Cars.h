@@ -1,23 +1,26 @@
 #ifndef CARS_H
 #define CARS_H
 
-#include "Port.h"
 #include "Utilis.h"
-#include "BinaryTree.h"
-#include "Station.h"
 
-typedef struct Car
+typedef struct Port Port;
+typedef struct Station Station;
+typedef struct BinaryTree BinaryTree;
+typedef struct TreeNode TreeNode;
+
+typedef struct Car Car;
+struct Car
 {
   char nLicense[LICENSE_SIZE];
   PortType portType;
   double totalPayed;
   Port *pPort;  // p to port
   BOOL inqueue; // car in queue?
-} Car;
+};
 
 int compareCars(const void *a, const void *b);
 
-Port* getCarPort(Car* car);
+Port *getCarPort(Car *car);
 
 // print car
 void printCar(const void *data);
@@ -38,6 +41,6 @@ Car *searchCar(const BinaryTree *carTree, const char *lisence);
 BOOL isLicenseValid(const char *license);
 
 // find station of queue car
-Station* findStationOfQueueCar(const TreeNode* node,const Car* car);
+Station *findStationOfQueueCar(const TreeNode *node, const Car *car);
 
 #endif

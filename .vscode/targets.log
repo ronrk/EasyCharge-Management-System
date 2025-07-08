@@ -6,11 +6,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
- 
-make: *** No rule to make target `all'.  Stop.
 
-
-# Make data base, printed on Sat Jul  5 20:25:02 2025
+# Make data base, printed on Tue Jul  8 10:26:37 2025
 
 # Variables
 
@@ -30,7 +27,6 @@ VSCODE_CRASH_REPORTER_PROCESS_TYPE = extensionHost
 CURDIR := /Users/ronrock/Documents/לימודים/שנה א/סמסטר ב/c/עבודת סוף שפת סי/finalProject
 # makefile
 SHELL = /bin/sh
- 
 # environment
 VSCODE_NLS_CONFIG = {"userLocale":"en-us","osLocale":"en-il","resolvedLanguage":"en","defaultMessagesFile":"/Applications/Visual Studio Code.app/Contents/Resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}
 # environment
@@ -134,7 +130,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 45462
+VSCODE_PID = 75464
 # variable set hash-table stats:
 # Load=60/1024=6%, Rehash=0, Collisions=1/80=1%
 
@@ -144,13 +140,12 @@ VSCODE_PID = 45462
 
 # Directories
 
-# . (device 16777224, inode 36583682): 17 files, no impossibilities.
+# . (device 16777224, inode 36583682): 19 files, no impossibilities.
 
-# 17 files, no impossibilities in 1 directories.
+# 19 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
- 
 # No implicit rules.
 
 # Files
@@ -219,6 +214,8 @@ GNUmakefile:
 # strcache size: total = 0 / max = 0 / min = 4096 / avg = 0
 # strcache free: total = 0 / max = 0 / min = 4096 / avg = 0
 
-# Finished Make data base on Sat Jul  5 20:25:02 2025
+# Finished Make data base on Tue Jul  8 10:26:37 2025
 
  
+make: *** No rule to make target `all'.  Stop.
+

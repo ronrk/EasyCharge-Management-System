@@ -1,5 +1,5 @@
 #include "ErrorHandler.h"
-#include <stdio.h>
+
 
 void displayError(ErrorCode code,const char* message) {
 

@@ -1,6 +1,8 @@
 #ifndef ERROR_HANDLER_H
 #define ERROR_HANDLER_H
 
+#include <stdio.h>
+
 typedef enum
 {
   ERR_LOADING_DATA = 1,

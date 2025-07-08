@@ -1,6 +1,6 @@
-#include "../headers/BinaryTree.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "BinaryTree.h"
+#include "ErrorHandler.h"
+
 
 
 // Create a new TreeNode
@@ -42,45 +42,6 @@ TreeNode* insertNode (TreeNode* root, void* data,CompareFunc cmp)
     root->right = insertNode(root->right,data,cmp);
   }
   return root;
-}
-
-// public insert a node
-int insertBST(BinaryTree *tree,void *data) {
-  if(tree==NULL) {
-    displayError(ERR_LOADING_DATA,"[insertBST]:NULL tree pointer");
-    return 0;
-  }
-
-  // insertion
-  tree->root = insertNode(tree->root,data,tree->cmp);
-  return 1;
-}
-
-// inorder traversal
-void inorderTraversal(TreeNode*root,PrintFunc print) {
-  if(root == NULL) return;
-
-  inorderTraversal(root->left,print);   //left
-  print(root->data);                    //current
-  inorderTraversal(root->right,print);  //right
-}
-
-// search
-void * searchBST(BinaryTree *tree, const void* data) {
-  if(!tree||!tree->root||!data) return NULL;
-  
-  TreeNode *current= tree->root;
-
-  while (current)
-  {
-    int cmp = tree->cmp(data,current->data);
-    if(cmp == 0) {
-      return current->data;
-    }
-    current = (cmp<0) ? current->left : current->right;
-  }
-  return NULL;
-  
 }
 
 // count nodes
@@ -130,3 +91,34 @@ void inorderBST(BinaryTree *tree, void (*printFunc)(const void *)) {
     if (!tree || !printFunc) return;
     inorderNode(tree->root, printFunc);
 }
+
+
+// public insert a node
+int insertBST(BinaryTree *tree,void *data) {
+  if(tree==NULL) {
+    displayError(ERR_LOADING_DATA,"[insertBST]:NULL tree pointer");
+    return 0;
+  }
+
+  // insertion
+  tree->root = insertNode(tree->root,data,tree->cmp);
+  return 1;
+}
+
+// search
+// void * searchBST(BinaryTree *tree, const void* data) {
+//   if(!tree||!tree->root||!data) return NULL;
+  
+//   TreeNode *current= tree->root;
+
+//   while (current)
+//   {
+//     int cmp = tree->cmp(data,current->data);
+//     if(cmp == 0) {
+//       return current->data;
+//     }
+//     current = (cmp<0) ? current->left : current->right;
+//   }
+//   return NULL;
+  
+// }

@@ -14,7 +14,13 @@ void printSingleStationQueue(const void *data);
 void printStationQueues(SystemData *sys);
 void testQueueOperations();
 void assignCarsToAvailablePorts(SystemData *sys, Date now);
-void printStationPorts(const SystemData *sys);
 void printCarQueue(qCar* queue, const char* stationName);
+void testStopCharge(BinaryTree* stationTree, BinaryTree* carTree);
+void initTestSystem(SystemData *sys);
+
+void test_loadALl();
+void test_locateNearSt_full(BinaryTree *stationTree);
+void test_cargeCarWithInput(SystemData* sys);
+void test_stopCharg(SystemData *sys);
 
 #endif

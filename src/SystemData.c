@@ -1,10 +1,10 @@
-#include "../headers/SystemData.h"
-#include "../headers/BinaryTree.h"
-#include "../headers/Cars.h"
-#include "../headers/Station.h"
-#include "Menu.h"
-#include "ErrorHandler.h"
+#include "SystemData.h"
 
+#include "Station.h"
+#include "Cars.h"
+#include "Port.h"
+#include "Utilis.h"
+#include "ErrorHandler.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,10 +17,10 @@ typedef struct
   char license[LICENSE_SIZE];
 }PortTempData;
 
-static Station* getStationById(BinaryTree* tree,unsigned int id){
-  if(!tree||!tree->root) return NULL;
-return findStationById(tree->root,id);
-}
+// static Station* getStationById(BinaryTree* tree,unsigned int id){
+//   if(!tree||!tree->root) return NULL;
+// return findStationById(tree->root,id);
+// }
 
 // Parsers
 void* portParser(const char*line) {
@@ -39,6 +39,11 @@ void* portParser(const char*line) {
   PortType parsedType = Util_parsePortType(typeStr);
   if (parsedType == -1) {
     displayError(ERR_PARSING,"[portParser] Invalid port type in line");
+    return NULL;
+  }
+
+  if(status <OCC|| status > OOD){
+    displayError(ERR_PARSING,"[portParser] invalid status value");
     return NULL;
   }
 
@@ -101,31 +106,24 @@ void linkPortToStation(void*obj, void*context) {
 
   Port* port = temp->port;
 
-   printf("🔗 Processing port ID: %u, StationID: %u\n", temp->port->num, temp->stationId);
-
   // 1.find the station for this port
   SearchKey key = {.type = SEARCH_BY_ID,.id = temp->stationId};
   Station* station = searchStation(&sys->stationTree, &key);
   if (!station) {
-    printf("❌ Station with ID %u not found!\n", temp->stationId);
     destroyPort(port);
     free(temp);
     return;
   }
-  printf("✅ Found station: %s (ID: %u). Linking port...\n", station->name, station->id);
   
   // 2.add port to station
   addPortToStation(station,temp->port);
-  printf("✅ Port linked to station %u\n", station->id);
 
   // 3.link car to port
   if (isLicenseValid(temp->license)) {
     Car* car = searchCar(&sys->carTree, temp->license);
     if (car) {
-      printf("🚗 Assigning car %s to port %u\n", car->nLicense, temp->port->num);
       assignCar2Port(port,car,port->tin);
     } else {
-      printf("🚗 Assigning car %s to port %u\n", car->nLicense, temp->port->num);
       displayError(ERR_LOADING_DATA, "[linkPortToStation] Car not found for assignment");
     }
   }
@@ -212,6 +210,73 @@ SystemData* loadFiles(){
 
   return sys;
 }
+
+int loadDataFile(const FileLoaderConfig *config) {
+  char msg[128];
+  // 1. Validate configuration
+  if(!config || !config->filename || !config->parser || !config->destroyObject) {
+    displayError(ERR_LOADING_DATA,"Invalid loader configuration\n");
+    return -1;
+  }
+
+  // 2. Open file
+  FILE* file = fopen(config->filename, "r");
+  if(!file) {
+    snprintf(msg,sizeof(msg),"Failed to open file from %s",config->filename);
+    displayError(ERR_LOADING_DATA,msg);
+    perror(config->filename);
+    return -1;
+  }
+
+  // 3. Skip header if requested
+  if(config->skipHeader) {
+    char header[256];
+    if(!fgets(header, sizeof(header), file)) {
+      fclose(file);
+      return 0;  // empty file
+    }
+  }
+
+  // 4. Process lines
+  char line[512];
+  int count = 0;
+  int lineNum = 0;
+  
+  while(fgets(line, sizeof(line), file)) {
+    lineNum++;
+    trimNewLine(line);
+    if(checkLineOverflow(file,line,sizeof(line),lineNum,config->filename)) {
+      continue;
+    }
+
+    
+    // 5. Parse line
+    void* obj = config->parser(line);
+    if(!obj) {
+      continue;
+    }
+
+    // 6. Insert to tree if requested
+    if(config->targetTree) {
+      if(!insertBST(config->targetTree, obj)) {
+        config->destroyObject(obj);
+        continue;
+      }
+    }
+
+    // 7. Post-process
+    if(config->processor) {
+      config->processor(obj, config->context);
+    }
+    
+    count++;
+  }
+
+  // 8. Cleanup
+  fclose(file);
+  return count;
+}
+
 
 int loadStations(BinaryTree *stationTree){
   FileLoaderConfig config = {
