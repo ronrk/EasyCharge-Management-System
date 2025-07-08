@@ -18,12 +18,8 @@ Station* getStationFromUser(const BinaryTree *stationTree);
 BOOL getLicenseFromUser(char *input,size_t size);
 PortType getPortTypeFromUser();
 
-void mainMenu(SystemData* sys) {
-  int choice;
-  char input[10];
-  do
-  {
-    printf(
+void displayMenu(){
+  printf(
       "\n\t***** EV CHARGING MANAGER *****\n"
       "*1. Locate Nearest Station\n"
       "*2. Charge Car\n"
@@ -31,7 +27,7 @@ void mainMenu(SystemData* sys) {
       "*4. Stop Charge\n"
       "*5. Display all stations\n"
       "*6. Display Cars at station\n"
-      "*7. Report of stations\n"
+      "*7. Report of stations' statistics\n"
       "*8. Display top customers\n"
       "*9. Add New Port\n"
       "###### TESTS ######\n"
@@ -42,20 +38,37 @@ void mainMenu(SystemData* sys) {
       "********************************\n");
 
     printf("Enter your choice: ");
-    if(!getLineFromUser(input,sizeof(input))) {
+}
+
+int getUserMenuChoice(){
+  int choice;
+  char input[10];
+  if(!getLineFromUser(input,sizeof(input))) {
       printf("Error reading input\n");
-      continue;
+      return -1;
     } 
 
     if(!isNumericString(input)) {
       printf("Invalid input. Enter a number.\n");
-      continue;
+      return -1;
     }
 
     choice = atoi(input);
+    return choice;
+}
+
+void mainMenu(SystemData* sys) {
+  int choice;
+  do
+  {
+    displayMenu();
+    choice = getUserMenuChoice();
 
       switch (choice)
       {
+      case -1:
+        printf("Invalid choice try again\n");
+        break;
       case 1:
         locateNearSt(&sys->stationTree);
         break;
@@ -74,6 +87,9 @@ void mainMenu(SystemData* sys) {
       case 6:
         dispCarsAtSt(&sys->stationTree);
         break;
+      case 7:
+        reportStStat(&sys->stationTree);
+        break;
       case 91:
         test_locateNearSt_feature(sys);
         break;
@@ -87,8 +103,7 @@ void mainMenu(SystemData* sys) {
         printf("Exiting system...\n");
         break;
       default:
-      
-      printf("Invalid choice try again\n");
+        printf("Invalid choice try again\n");
       }
       
     }
@@ -420,6 +435,85 @@ void displayWaitingsCars(const Station* station){
     printf("No cars waiting in the queue\n");
   }
 }
+
+// 7. Report Of Station Statictics
+void printStationStatics(Station* station,int totalPorts,int occupiedPorts, int activePorts,
+  int outOfOrderPorts,double utilizationRate,double oodRate,int currentChargingCars,
+  int queueSize,double relativeRate) {
+
+  
+  printf("\n===== Station Report: %s (ID: %u) =====\n", station->name, station->id);
+    printf("Total Ports: %d\n", totalPorts);
+    printf("Occupied Ports: %d\n", occupiedPorts);
+    printf("Available Ports: %d\n", activePorts);
+    printf("Out-of-Order Ports: %d\n\n", outOfOrderPorts);
+    printf("Port Utilization Rate: %.2f%%\n", utilizationRate);
+    printf("Out-of-Order Rate: %.2f%%\n", oodRate);
+    printf("\nCharging Cars: %d\n", currentChargingCars);
+    printf("Cars in Queue: %d\n", queueSize);
+    printf("Relative Load: %.2f → ", relativeRate);
+
+    //load level
+    if (relativeRate < 0.2)
+        printf("Heavily Loaded\n");
+    else if (relativeRate < 1.0)
+        printf("Loaded\n");
+    else if (relativeRate == 1.0)
+        printf("Balanced\n");
+    else
+        printf("Underloaded\n");
+
+    printf("===============================================\n\n");
+}
+
+
+void reportStStat(const BinaryTree* stationTree){
+  if(!stationTree||!stationTree->root) {
+    displayError(ERR_LOADING_DATA,"Empty station tree");
+    return;
+  };
+
+  Station* station = getStationFromUser(stationTree);
+  if(!station) {
+    return; //canceled
+  }
+
+  // init counters
+  int totalPorts=0, occupiedPorts=0, activePorts=0,outOfOrderPorts=0;
+
+  Port* current = station->portsList;
+  while (current)
+  {
+    totalPorts++;
+    if(current->status == OCC) occupiedPorts++;
+    if(current->status == FREE || current->status == OCC) activePorts++;
+    if(current->status == OOD) outOfOrderPorts++;
+
+    current = current->next;
+  }
+  
+  int queueSize = countQueueItems(station->qCar);
+  int currentChargingCars = occupiedPorts;
+
+  // rates
+  double utilizationRate = 0, relativeRate = 0, oodRate=0;
+  if(activePorts>0) 
+    utilizationRate = ((double)occupiedPorts / activePorts) * 100;
+  if(totalPorts > 0) 
+    oodRate = ((double)outOfOrderPorts/totalPorts) * 100;
+
+  if(queueSize>0) 
+    relativeRate = ((double)currentChargingCars/queueSize);
+  else if(currentChargingCars > 0) 
+    relativeRate = 1.0;
+  else 
+    relativeRate = 0.0;
+
+  printStationStatics(station,totalPorts,occupiedPorts,activePorts,
+    outOfOrderPorts,utilizationRate,oodRate,
+    currentChargingCars,queueSize,relativeRate);
+}
+
 
 // 
 // 

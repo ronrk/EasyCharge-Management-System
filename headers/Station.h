@@ -19,8 +19,6 @@ struct Station
   Port *portsList;
   int nCars;
   qCar *qCar;
-  Station *left;
-  Station *right;
 };
 
 Station *StationCreate(unsigned int id, const char *name, int nPorts, Coord coord);
@@ -28,7 +26,7 @@ Station *StationCreate(unsigned int id, const char *name, int nPorts, Coord coor
 typedef Station *(*SearchFunc)(const BinaryTree *tree, SearchKey *key);
 
 void StationDestroy(void *data);
-int compareStation(const void *a, const void *b);
+int compareStationById(const void *a, const void *b);
 void printStation(const void *data);
 void printFullStation(const void *data);
 
@@ -45,8 +43,6 @@ Station *searchStation(const BinaryTree *tree, SearchKey *key);
 Car *searchCarInAllQueues(const BinaryTree *stationTree, const char *license);
 
 Station *findStationByPort(const BinaryTree *tree, const Port *port);
-
-Station *findStationById(TreeNode *node, int id);
 
 Station *findStationByCar(BinaryTree *stationTree, Car *car);
 

@@ -117,7 +117,7 @@ void run_parser_tests() {
 void test_loadStations_basic() {
     printf("\n==== TEST: loadStations ====\n");
 
-    BinaryTree stationTree = initTree(compareStation, printStation, StationDestroy);
+    BinaryTree stationTree = initTree(compareStationById, printStation, StationDestroy);
     int count = loadStations(&stationTree);
 
     assert(count > 0);
@@ -132,7 +132,7 @@ void test_loadStations_basic() {
 void test_loadCars_basic() {
     printf("\n==== TEST: loadCars ====\n");
 
-    BinaryTree carTree = initTree(compareCars, printCar, destroyCar);
+    BinaryTree carTree = initTree(compareCarsByLicense, printCar, destroyCar);
     int count = loadCars(&carTree);
 
     assert(count > 0);
@@ -150,8 +150,8 @@ void test_loadPorts_basic() {
     SystemData *sys = malloc(sizeof(SystemData));
     assert(sys != NULL);
 
-    sys->carTree = initTree(compareCars, printCar, destroyCar);
-    sys->stationTree = initTree(compareStation, printStation, StationDestroy);
+    sys->carTree = initTree(compareCarsByLicense, printCar, destroyCar);
+    sys->stationTree = initTree(compareStationById, printStation, StationDestroy);
 
     int stationsLoaded = loadStations(&sys->stationTree);
     int carsLoaded = loadCars(&sys->carTree);
@@ -174,8 +174,8 @@ void test_loadLinesOfCars_basic() {
     SystemData *sys = malloc(sizeof(SystemData));
     assert(sys != NULL);
 
-    sys->stationTree = initTree(compareStation, printStation, StationDestroy);
-    sys->carTree = initTree(compareCars, printCar, destroyCar);
+    sys->stationTree = initTree(compareStationById, printStation, StationDestroy);
+    sys->carTree = initTree(compareCarsByLicense, printCar, destroyCar);
 
     int stationsLoaded = loadStations(&sys->stationTree);
     int carsLoaded = loadCars(&sys->carTree);
@@ -457,11 +457,6 @@ void testStopCharge(BinaryTree* stationTree, BinaryTree* carTree) {
   printf("Simulating stop charge and checking queue assignment...\n");
 
   processStopCharge(car, stationTree);
-}
-
-void initTestSystem(SystemData *sys) {
-    sys->carTree = initTree(compareCars, printCar, destroyCar);
-    sys->stationTree = initTree(compareStation, printStation, StationDestroy);
 }
 
 void destroyBinaryTree(BinaryTree *tree) {

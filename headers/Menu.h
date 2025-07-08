@@ -51,6 +51,9 @@ void dispCarsAtSt(BinaryTree* stationTree);
 void displayWaitingsCars(const Station* station);
 void displayChargingCars(const Station* station);
 
+// 7. Report of statistis, station
+void reportStStat(const BinaryTree* stationTree);
+
 // TEST OPTIONS
 void displaySystemStatus(const BinaryTree *stationTree, const BinaryTree *carTree);
 void createStationInteractive(BinaryTree* stationTree);

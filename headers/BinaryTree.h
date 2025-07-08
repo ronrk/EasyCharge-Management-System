@@ -44,6 +44,8 @@ int countNodes(TreeNode *root);
 // destroy the tree
 void destroyTree(TreeNode *root, FreeFunc destroy);
 
+// search data
+void *searchBST(BinaryTree *tree, const void *key);
 
 void inorderBST(BinaryTree *tree, void (*printFunc)(const void *));
 
@@ -56,7 +58,6 @@ void* findMaxData(TreeNode* root, CompareFunc cmp);
 // inorder Traversal
 // void inorderTraversal(TreeNode *root, PrintFunc print);
 
-// search data
-// void *searchBST(BinaryTree *tree, const void *data);
+
 
 #endif // BINARYTREE_H

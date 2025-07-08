@@ -18,7 +18,7 @@ struct Car
   BOOL inqueue; // car in queue?
 };
 
-int compareCars(const void *a, const void *b);
+int compareCarsByLicense(const void *a, const void *b);
 
 Port *getCarPort(Car *car);
 
@@ -35,7 +35,7 @@ Car *createCar(const char *license, PortType type);
 void destroyCar(void *data);
 
 // search for car
-Car *searchCar(const BinaryTree *carTree, const char *lisence);
+Car *searchCar(const BinaryTree *carTree, const char *license);
 
 // validate car
 BOOL isLicenseValid(const char *license);

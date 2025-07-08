@@ -50,8 +50,6 @@ Station *StationCreate(unsigned int id, const char *name, int nPorts, Coord coor
   s->coord = coord;
   s->portsList = NULL;
   s->nCars = 0;
-  s->left = NULL;
-  s->right = NULL;
 
   return s;
 }
@@ -103,7 +101,7 @@ void StationDestroy(void *data)
   free(station);
 }
 
-int compareStation(const void *a, const void *b)
+int compareStationById(const void *a, const void *b)
 {
   const Station *s1 = (const Station *)a;
   const Station *s2 = (const Station *)b;
@@ -208,7 +206,8 @@ Station *searchById(const BinaryTree *tree, SearchKey *key)
 {
   if (!tree || !key)
     return NULL;
-  return findStationById(tree->root, key->id);
+  Station temp = {.id = key->id};
+  return (Station *)searchBST((BinaryTree *)tree, &temp);
 }
 
 void searchByDistanceHelper(TreeNode *node, DistanceSearchHelper *helper)
@@ -231,25 +230,17 @@ void searchByDistanceHelper(TreeNode *node, DistanceSearchHelper *helper)
   searchByDistanceHelper(node->right, helper);
 }
 
-static void findMax(TreeNode *node, unsigned int *maxId)
-{
-
-  if (!node)
-    return;
-  Station *s = (Station *)node->data;
-  if (s->id > *maxId)
-    *maxId = s->id;
-  findMax(node->left, maxId);
-  findMax(node->right, maxId);
-}
-
 unsigned int generateUniqueStationId(BinaryTree *tree)
 {
-  unsigned int maxId = 1000; // start from 100 at least
-  if (tree && tree->root)
-    findMax(tree->root, &maxId);
+  unsigned int baseId = 1000; // start from 100 at least
+  if (!tree || !tree->root)
+    return baseId + 1;
 
-  return maxId + 1;
+  Station *maxStation = (Station *)findMaxData(tree->root, compareStationById);
+  if (maxStation && maxStation->id > baseId)
+    return maxStation->id + 1;
+  else
+    return baseId + 1;
 }
 
 Station *searchByDistance(const BinaryTree *tree, SearchKey *key)
@@ -351,27 +342,6 @@ BOOL enqueueCarToStationQueue(Station *station, Car *car)
   }
 
   return FALSE;
-}
-
-Station *findStationById(TreeNode *node, int id)
-{
-  if (node == NULL)
-    return NULL;
-
-  Station *station = (Station *)node->data;
-
-  if (station->id == id)
-  {
-    return station;
-  }
-  else if (id < station->id)
-  {
-    return findStationById(node->left, id);
-  }
-  else
-  {
-    return findStationById(node->right, id);
-  }
 }
 
 Station *findStationByCar(BinaryTree *stationTree, Car *car)

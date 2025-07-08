@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 
-static Car* removeNode(qCar* queue,CarNode *prev, CarNode *toRemove){
+static Car* removeCarNode(qCar* queue,CarNode *prev, CarNode *toRemove){
   if(!queue||!toRemove) return NULL;
 
   if(prev ==NULL) {
@@ -58,6 +58,7 @@ int isEmpty(const qCar *queue)
 
 BOOL enqueue(qCar *queue, Car *car) 
 {
+  if(!car||!queue) return FALSE;
   CarNode *newNode = malloc(sizeof(CarNode));
   if(!newNode) {
     perror("Failed to allocate memory for QueueNode");
@@ -78,7 +79,7 @@ BOOL enqueue(qCar *queue, Car *car)
 
 Car *dequeue(qCar *queue) {
   if(isEmpty(queue)) return NULL;
-  return removeNode(queue,NULL,queue->front);
+  return removeCarNode(queue,NULL,queue->front);
 }
 
 Car* dequeueByPortType(qCar* queue,PortType portType){
@@ -93,7 +94,7 @@ Car* dequeueByPortType(qCar* queue,PortType portType){
   while (current)
   {
     if(current->data&&current->data->portType == portType) {
-      return removeNode(queue,prev,current);
+      return removeCarNode(queue,prev,current);
     }
 
     prev = current;

@@ -44,6 +44,24 @@ TreeNode* insertNode (TreeNode* root, void* data,CompareFunc cmp)
   return root;
 }
 
+// search
+void * searchBST(BinaryTree *tree, const void* key) {
+  if(!tree||!tree->root||!key) return NULL;
+  
+  TreeNode *current= tree->root;
+
+  while (current)
+  {
+    int cmp = tree->cmp(key,current->data);
+    if(cmp == 0) {
+      return current->data;
+    }
+    current = (cmp<0) ? current->left : current->right;
+  }
+  return NULL;
+  
+}
+
 // count nodes
 int countNodes(TreeNode *root) {
   if(root==NULL) return 0;
@@ -118,20 +136,4 @@ void* findMaxData(TreeNode* root, CompareFunc cmp) {
 
   return maxData;
 }
-// search
-// void * searchBST(BinaryTree *tree, const void* data) {
-//   if(!tree||!tree->root||!data) return NULL;
-  
-//   TreeNode *current= tree->root;
 
-//   while (current)
-//   {
-//     int cmp = tree->cmp(data,current->data);
-//     if(cmp == 0) {
-//       return current->data;
-//     }
-//     current = (cmp<0) ? current->left : current->right;
-//   }
-//   return NULL;
-  
-// }

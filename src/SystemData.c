@@ -196,9 +196,9 @@ SystemData* loadFiles(){
 
 
   // init car tree
-  sys->carTree = initTree(compareCars,printCar,destroyCar);
+  sys->carTree = initTree(compareCarsByLicense,printCar,destroyCar);
   // init station tree
-  sys->stationTree = initTree(compareStation,printStation,StationDestroy);
+  sys->stationTree = initTree(compareStationById,printStation,StationDestroy);
 
 
   // load all files and checks if fail free sys

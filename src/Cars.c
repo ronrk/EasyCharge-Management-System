@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-int compareCars(const void* a, const void*b){
+int compareCarsByLicense(const void* a, const void*b){
   const Car *c1 = (const Car*)a;
   const Car *c2 = (const Car*)b;
 
@@ -20,7 +20,9 @@ int compareCars(const void* a, const void*b){
 static char* getNextToken(char* context,const char* fieldName){
   char *token = strtok(NULL, ",");
   if(!token && fieldName) {
-    displayError(ERR_PARSING,"parseCarLine Missing name field '%s'");
+    char msg[128];
+    snprintf(msg, sizeof(msg), "parseCarLine Missing field: %s", fieldName);
+    displayError(ERR_PARSING, msg);
   }
   return token;
 }
@@ -29,44 +31,42 @@ Car* parseCarLine(const char* line)
 {
   // COPY OF THE LINE
   char buffer[256];
-  strcpy(buffer,line);
+  strncpy(buffer,line,sizeof(buffer)-1);
 
   // CREATE NEW CAR DYNAMIC
-  Car *car = malloc(sizeof(Car));
-  if(!car) 
-  {
-    displayError(ERR_MEMORY,"Failed Allocation Memory to Car");
+  Car* car = (Car*)malloc(sizeof(Car));
+  if (!car) {
+    displayError(ERR_MEMORY, "Failed to allocate memory for Car");
     return NULL;
   }
-  // SPLIT THE LINE BY ","
-  char *token = strtok(buffer,",");
 
-  // 
-  // nLICENSE
-  if(token) {
-    strncpy(car->nLicense,token,8);
-    car->nLicense[8] = '\0';
-  } else {
-    displayError(ERR_PARSING,"carParseLine Missing license field");
+  // tokenize license
+  char* token = strtok(buffer,",");
+  if (!token) {
+    displayError(ERR_PARSING, "Missing license field");
     free(car);
     return NULL;
   }
+  strncpy(car->nLicense, token, LICENSE_SIZE - 1);
+    car->nLicense[LICENSE_SIZE - 1] = '\0';
   
- token = strtok(NULL, ","); // portType
-  if(!token) {
-    displayError(ERR_PARSING, "Missing PortType field in car data");
-    free(car);
-    return NULL;
-  }
+  // tokenize portType
+  token = getNextToken(buffer,"PortType");
+  if (!token) { free(car); return NULL; }
   car->portType = Util_parsePortType(token);
 
-  token = strtok(NULL, ","); // totalPayed
+   // tokenize totalPayed
+  token = getNextToken(buffer, "TotalPayed");
   car->totalPayed = token ? atof(token) : 0.0;
+  
+  //tokenize StationID
+  getNextToken(buffer, "StationID");  // 
 
-  token = strtok(NULL, ","); // stationId (skip or handle if needed)
-  token = strtok(NULL, ","); // portNumber (skip or handle if needed)
+  // tokenize portNum
+  getNextToken(buffer, "PortNumber"); // 
 
-  token = strtok(NULL, ","); // inQueue
+  // tokenize inQueue
+  token = getNextToken(buffer, "inQueue");
   car->inqueue = (token && strcmp(token, "1") == 0) ? TRUE : FALSE;
 
   car->pPort = NULL;
@@ -97,6 +97,7 @@ Car *createCar(const char *license, PortType type) {
 }
 
 Port* getCarPort(Car* car){
+  if(!car) return NULL;
   Port* port = car->pPort;
   if(!port) return NULL;
   return port;
@@ -110,30 +111,14 @@ void destroyCar(void *data) {
   free(car);
 }
 
-Car* searchCar(const BinaryTree *carTree,const char *lisence) {
-  if(!carTree||!lisence||!carTree->root) {
+Car* searchCar(const BinaryTree *carTree,const char *license) {
+  if(!carTree||!license) {
     return NULL;
   }
-
-  TreeNode *current = carTree->root;
-
-  while (current!=NULL)
-  {
-    Car *car=(Car *)current->data;
-    int cmp= strcmp(lisence,car->nLicense);
-
-    if(cmp ==0 ) {
-      return car;
-    }
-    else if(cmp<0) {
-      current = current->left;
-    }
-    else  {
-      current = current->right;
-    }
-  }
-  
-  return NULL;
+  Car tmp = {0};
+  strncpy(tmp.nLicense,license, LICENSE_SIZE- 1);
+  tmp.nLicense[LICENSE_SIZE - 1] = '\0';
+  return (Car*)searchBST((BinaryTree*)carTree,&tmp);
 }
 
 BOOL isLicenseValid(const char* license) {
