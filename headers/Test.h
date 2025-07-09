@@ -24,5 +24,6 @@ void run_parser_tests();
 void test_locateNearSt_feature(SystemData* sys);
 void test_chargeCar_feature(SystemData* sys);
 void test_stopCharg(SystemData* sys);
+void test_addNewPort_feature(SystemData*sys);
 
 #endif

@@ -371,6 +371,58 @@ void test_stopCharg(SystemData* sys) {
 
 // 7.
 
+// 8.
+
+// 9. Add a new port
+void test_addNewPort_run(SystemData* sys,const char* simulatedInput) {
+    printf("\n[TEST] addNewPort feature - simulate input:\n%s\n ",simulatedInput);
+
+    FILE *fakeInput = fmemopen((void* )simulatedInput,strlen(simulatedInput),"r");
+
+    if (!fakeInput) {
+        printf("[FAIL] Could not simulate input\n");
+        return;
+    }
+
+    FILE* originStd = stdin;
+    stdin = fakeInput;
+
+    addNewPort(&sys->stationTree);
+
+    stdin = originStd;
+    fclose(fakeInput);
+}
+
+void test_addNewPort_feature(SystemData*sys){
+    if(!sys||!sys->stationTree.root) {
+        printf("[FAIL] No system data loaded for addNewPort test\n");
+        return;
+    }
+
+    // TEST 1: valid input (station by id) + valid port type
+    test_addNewPort_run(sys, "101\nFAST\n"); // add FAST port to 101
+
+    // TEST 2: valid input (station by name) + valid port type
+    test_addNewPort_run(sys, "Haifa Port\nSLOW\n"); //add SLow port to Haifa
+
+    // TEST 3: cancel station selection
+    test_addNewPort_run(sys, "0\n");
+
+    // TEST 4: invalid station input then valid
+    test_addNewPort_run(sys, "invalidStation\n101\nFAST\n"); //invalid -> 101 -> add FAST
+
+    // TEST 5: cancel at port type input
+    test_addNewPort_run(sys, "101\n\n"); // 101 -> invalid portType
+
+    // TEST 6: invalid port type, then valid
+    test_addNewPort_run(sys, "101\nWRONGTYPE\nFAST\n"); // 101 -> invalidPort -> FAST
+
+    // TEST 7: station has no ports initially
+    test_addNewPort_run(sys, "999\nMID\n"); // add to empty station (Test Station) MID port
+
+    printf("\n========== END TEST: addNewPort ==========\n");
+}
+
 // 
 //  Unsused?
 void assignCarsToAvailablePorts(SystemData *sys, Date now) {

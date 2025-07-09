@@ -16,7 +16,7 @@
 
 Station* getStationFromUser(const BinaryTree *stationTree);
 BOOL getLicenseFromUser(char *input,size_t size);
-PortType getPortTypeFromUser();
+PortType getPortTypeFromUser(char *prompt);
 
 void displayMenu(){
   printf(
@@ -36,8 +36,9 @@ void displayMenu(){
       "*13. Close Station\n"
       "###### TESTS ######\n"
       "*91. Test Locate Nearest Station\n"
-      "*92. Test Charge Car with Inputs\n"
-      "*93. Test Stop Charge with Inputs\n"
+      "*92. Test Charge Car\n"
+      "*93. Test Stop Charge\n"
+      "*94. Test Add new port\n"
       "*0. Exit\n"
       "********************************\n");
 
@@ -120,6 +121,9 @@ void mainMenu(SystemData* sys) {
         break;
       case 93:
       test_stopCharg(sys);
+        break;
+      case 94:
+      test_addNewPort_feature(sys);
         break;
       case 0:
         printf("Exiting system...\n");
@@ -233,7 +237,7 @@ void chargeCar(BinaryTree *stationTree,BinaryTree* carTree){
     }
   } else { //create new car
     // get port type
-    pType = getPortTypeFromUser();
+    pType = getPortTypeFromUser("Enter Port Type for new car(| FAST | MID | SLOW |): ");
     if (pType == INVALID_PORT || pType == -1) {
       printf("Invalid or canceled port type selection\n");
       return;
@@ -580,7 +584,7 @@ void addNewPort(BinaryTree* stationTree) {
       return;
     }
   }
-  PortType pType = getPortTypeFromUser();
+  PortType pType = getPortTypeFromUser("Enter Port Type for new port(| FAST | MID | SLOW |): ");
   if(pType == INVALID_PORT) {
     printf("canceled");
     return;
@@ -682,11 +686,11 @@ Station* getStationFromUser(const BinaryTree *stationTree) {
   
 }
 
-PortType getPortTypeFromUser() {
+PortType getPortTypeFromUser(char* prompt) {
   char input[20];
   while (1)
   {
-    if(!getInputAndCancel(input,sizeof(input),"Enter Port Type for new car (| FAST | MID | SLOW |): ")) {
+    if(!getInputAndCancel(input,sizeof(input),prompt)) {
       return -1;
     }
 

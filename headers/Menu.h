@@ -25,7 +25,7 @@ void locateNearSt(const BinaryTree *stationTree);
 // 2: Charge Car
 void chargeCar(BinaryTree *stationTree, BinaryTree *carTree);
 Station* getStationFromUser(const BinaryTree *stationTree);
-PortType getPortTypeFromUser();
+PortType getPortTypeFromUser(char * prompt);
 Port* getPortNumFromUser(Port* portList,const PortType portType);
 BOOL getLicenseFromUser(char *input,size_t size);
 int printCompatibleFreePorts(Port* head,PortType carType,char * stationName);

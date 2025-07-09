@@ -116,10 +116,7 @@ BOOL isPortAvailable(Port* port){
     return FALSE;
   }
 
-  if(port->status == OCC && port->p2Car != NULL) {
-    return FALSE;
-  }
-  if (port->status == OOD) {
+  if(port->status == OCC || port->status == OOD) {
     return FALSE;
   }
   
@@ -186,10 +183,14 @@ BOOL isPortTypeValid(const char* pTypeKey) {
 }
 
 int getNextPortNum(Station* station){
-  if(!station || !station->portsList) return 0;
-  int nextPortNum = 1;
+  if(!station) return 0;
+  int nextPortNum = 0;
   Port *current = station->portsList;
 
+  // empty station
+  if(station->nPorts == 0 || !station->portsList) return 1;
+
+  // get next valid port num
   while (current)
   {
     if(current->num >= nextPortNum)

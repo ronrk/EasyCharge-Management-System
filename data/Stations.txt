@@ -5,3 +5,4 @@ ID,StationName,NumOfPorts,CoordX,CoordY
 412,Jerusalem East,2,31.77,35.21
 518,Herzliya Marina,6,32.16,34.81
 623,Ashdod South,4,31.80,34.64
+999,Test Empty Station,0,90,90

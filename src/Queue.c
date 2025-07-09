@@ -84,7 +84,6 @@ Car *dequeue(qCar *queue) {
 
 Car* dequeueByPortType(qCar* queue,PortType portType){
   if(!queue||isEmpty(queue)) {
-    printf("[Dequeue] Queue empty or NULL.\n");
     return NULL;
   }
 

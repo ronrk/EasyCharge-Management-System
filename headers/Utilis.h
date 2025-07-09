@@ -38,7 +38,7 @@ typedef enum
   FAST,
   MID,
   SLOW,
-  INVALID_PORT
+  INVALID_PORT = -1
 } PortType;
 typedef enum
 {

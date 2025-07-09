@@ -17,10 +17,6 @@ typedef struct
   char license[LICENSE_SIZE];
 }PortTempData;
 
-// static Station* getStationById(BinaryTree* tree,unsigned int id){
-//   if(!tree||!tree->root) return NULL;
-// return findStationById(tree->root,id);
-// }
 
 // Parsers
 void* portParser(const char*line) {
