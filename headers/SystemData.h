@@ -1,30 +1,21 @@
 #ifndef SYSTEMDATA_H
 #define SYSTEMDATA_H
+
 #include "Utilis.h"
 #include "BinaryTree.h"
 
-typedef struct SystemData SystemData;
-
-struct SystemData
+// STRUCT & Enums declarations
+typedef struct
 {
   BinaryTree carTree;     //  cars binary tree
   BinaryTree stationTree; //  stations binary tree
-};
+} SystemData;
 
-typedef struct LineOfCarsEntry
-{
-  unsigned int stationId;
-  char license[LICENSE_SIZE];
-} LineOfCarsEntry;
-
-// function pointer for parsing line from text file to struct
-typedef void *(*FileLineProcessor)(const char *line, void *context);
-int processFileLines(const char *filename, FileLineProcessor processor, void *context, int skipHeader);
-
-// file loader types
+// file loader functions pointers definition
 typedef void *(*ParseLineFunc)(const char *line);
 typedef void (*PostProcessFunction)(void *obj, void *context);
 
+// File Loader config struct
 typedef struct
 {
   const char *filename;             // file to load
@@ -36,24 +27,32 @@ typedef struct
   int skipHeader;                   // skip header?
 } FileLoaderConfig;
 
-int loadDataFile(const FileLoaderConfig *config);
 
 
-// Functions
-// load files
-SystemData *loadFiles();
-// destroy files
-void saveAndCleanupSystem(SystemData *sys);
+typedef struct LineOfCarsEntry
+{
+  unsigned int stationId;
+  char license[LICENSE_SIZE];
+} LineOfCarsEntry;
 
-// load individual files
+// FUNCTIONS
+// 
+// init systemData struct to handle data
+SystemData* loadFiles();
 int loadStations(BinaryTree *stationTree);
 int loadCars(BinaryTree *carTree);
 int loadPorts(SystemData *sys);
 int loadLineOfCars(SystemData *sys);
 
-void* stationParser(const char* line);
-
 // update files
 int updateFiles(SystemData* sys);
+int saveStationToFile(TreeNode* root,const char* fileName);
+int saveCarToFile(TreeNode* root,const char* fileName,BinaryTree* stationTree);
+int savePortsToFile(TreeNode* root,const char* fileName);
+int saveLinesOfCars(TreeNode* root, const char* fileNmae);
+
+// clean trees from memory
+void cleanupSystem(SystemData *sys);
+
 
 #endif

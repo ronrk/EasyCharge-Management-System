@@ -3,14 +3,13 @@
 
 #include "Utilis.h"
 
+// STRUCT & Enums declarations
 typedef struct Port Port;
-typedef struct Car Car;
 typedef struct qCar qCar;
+typedef struct Car Car;
 typedef struct BinaryTree BinaryTree;
-typedef struct TreeNode TreeNode;
 
-typedef struct Station Station;
-struct Station
+typedef struct
 {
   unsigned int id;
   char *name;
@@ -19,37 +18,19 @@ struct Station
   Port *portsList;
   int nCars;
   qCar *qCar;
-};
+} Station;
 
+// FUNCTIONS
 Station *StationCreate(unsigned int id, const char *name, int nPorts, Coord coord);
-
-typedef Station *(*SearchFunc)(const BinaryTree *tree, SearchKey *key);
-
-void StationDestroy(void *data);
-int compareStationById(const void *a, const void *b);
 void printStation(const void *data);
-void printFullStation(const void *data);
-
+int compareStationById(const void *a, const void *b);
+void StationDestroy(void *data);
 void *Station_parseLine(const char *line);
-
-unsigned int generateUniqueStationId(BinaryTree *tree);
-
+void addPortToStation(Station *station, Port *port, BOOL increment);
 BOOL enqueueCarToStationQueue(Station *station, Car *car);
-
-void addPortToStation(Station *station, Port *port,BOOL increment);
-
-// search
 Station *searchStation(const BinaryTree *tree, SearchKey *key);
-Car *searchCarInAllQueues(const BinaryTree *stationTree, const char *license);
-
-Station *findStationByPort(const BinaryTree *tree, const Port *port);
-
 Station *findStationByCar(BinaryTree *stationTree, Car *car);
-
-// ////////////////
-// ////////////////
-// ////////////////
-// ////////////////
-
+Station *findStationByPort(const BinaryTree *tree, const Port *port);
 void printStationSummary(const void *data);
+
 #endif

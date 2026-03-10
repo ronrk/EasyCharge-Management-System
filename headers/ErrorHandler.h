@@ -12,6 +12,6 @@ typedef enum
   UI_WARNING
 } ErrorCode;
 
-void displayError(ErrorCode code,const char* message);
+void displayError(ErrorCode code, const char *message);
 
 #endif

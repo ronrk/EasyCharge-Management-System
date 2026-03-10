@@ -1,14 +1,19 @@
 #include "BinaryTree.h"
 #include "ErrorHandler.h"
 
-// static functions
+#include <stdio.h>
+#include <stdlib.h>
+
+// STATIC
+
+// create dynamic node
 static TreeNode* createNode(void* data)
 {
   // Allocate memory newNode
   TreeNode* node = malloc(sizeof(TreeNode));
   // Check Allocation
   if(node == NULL) {
-    perror("Failed to allocate TreeNode");
+    displayError(ERR_MEMORY,"Failed to allocate TreeNode");
     return NULL;
   }
   // Init treeNode
@@ -17,27 +22,8 @@ static TreeNode* createNode(void* data)
   return node;
 }
 
-static void inorderNode(TreeNode *node, void (*printFunc)(const void *)) {
-    if (!node) return;
-    inorderNode(node->left, printFunc);
-    printFunc(node->data);
-    inorderNode(node->right, printFunc);
-}
-
-
-// public functions
-
-BinaryTree initTree(CompareFunc cmp,PrintFunc print,FreeFunc destroy) {
-
-  BinaryTree tree;
-  tree.root = NULL;
-  tree.cmp = cmp;
-  tree.print = print;
-  tree.destroy = destroy;
-  return tree;
-}
-
-TreeNode* insertNode (TreeNode* root, void* data,CompareFunc cmp) 
+// insert node to tree
+static TreeNode* insertNode (TreeNode* root, void* data,CompareFunc cmp) 
 {
   if(root == NULL) {
     // if in a leaf
@@ -61,82 +47,16 @@ TreeNode* insertNode (TreeNode* root, void* data,CompareFunc cmp)
   return root;
 }
 
-int insertBST(BinaryTree *tree,void *data) {
-  if(tree==NULL) {
-    displayError(ERR_LOADING_DATA,"[insertBST]:NULL tree pointer");
-    return 0;
-  }
-
-  // insertion
-  tree->root = insertNode(tree->root,data,tree->cmp);
-  return 1;
+// inorder traversall with custom print function
+static void inorderNode(TreeNode *node, void (*printFunc)(const void *)) {
+    if (!node) return;
+    inorderNode(node->left, printFunc);
+    printFunc(node->data);
+    inorderNode(node->right, printFunc);
 }
 
-int countNodes(TreeNode *root) {
-  if(root==NULL) return 0;
-  return 1+countNodes(root->left) +countNodes(root->right);
-}
-
-void destroyTree(TreeNode *root,FreeFunc destroy) {
-  if(root == NULL) return;
-
-  // printf("[DEBUG] visiting node: %p\n", (void*)root);
-  // printf("[DEBUG] root->left: %p, root->right: %p\n", (void*)root->left, (void*)root->right);
-
-  destroyTree(root->left,destroy); // left
-
-  destroyTree(root->right,destroy); // right
-
-  if(destroy) 
-    // printf("[DEBUG] destroying car\n");
-    destroy(root->data);
-
-
-  // printf("[DEBUG] freeing node\n");
-  free(root);
-}
-
-void * searchBST(BinaryTree *tree, const void* key) {
-  if(!tree||!tree->root||!key) return NULL;
-  
-  TreeNode *current= tree->root;
-
-  while (current)
-  {
-    int cmp = tree->cmp(key,current->data);
-    if(cmp == 0) {
-      return current->data;
-    }
-    current = (cmp<0) ? current->left : current->right;
-  }
-  return NULL;
-  
-}
-
-void inorderBST(BinaryTree *tree, void (*printFunc)(const void *)) {
-    if (!tree || !printFunc) return;
-    inorderNode(tree->root, printFunc);
-}
-
-void* findMaxData(TreeNode* root, CompareFunc cmp) {
-  if(!root||!cmp) return NULL;
-
-  void * maxData = root->data;
-  void* maxLeft = findMaxData(root->left,cmp);
-
-  if(maxLeft&&cmp(maxLeft,maxData)>0){
-    maxData =maxLeft;
-  }
-
-  void* maxRight = findMaxData(root->right,cmp);
-  if(maxRight&&cmp(maxRight,maxData)>0){
-    maxData =maxRight;
-  }
-
-  return maxData;
-}
-
-TreeNode* deleteNode(TreeNode* root, const void* key,CompareFunc cmp,FreeFunc destroy){
+// delete node
+static TreeNode* deleteNode(TreeNode* root, const void* key,CompareFunc cmp,FreeFunc destroy){
   if(!root) return NULL;
   int res = cmp(key,root->data);
 
@@ -174,10 +94,72 @@ TreeNode* deleteNode(TreeNode* root, const void* key,CompareFunc cmp,FreeFunc de
   return root;
 }
 
+// FUNCTIONS 
+
+// initialize new tree
+BinaryTree initTree(CompareFunc cmp, PrintFunc print, FreeFunc destroy) {
+  BinaryTree tree;
+  tree.root = NULL;
+  tree.cmp = cmp;
+  tree.print = print;
+  tree.destroy = destroy;
+  return tree;
+}
+
+// public insert node to a tree
+int insertBST(BinaryTree *tree,void *data) {
+  if(tree==NULL) {
+    displayError(ERR_LOADING_DATA,"[insertBST]:NULL tree pointer");
+    return 0;
+  }
+
+  // insertion
+  tree->root = insertNode(tree->root,data,tree->cmp);
+  return 1;
+}
+
+// inorder search in tree
+void * searchBST(BinaryTree *tree, const void* key) {
+  if(!tree||!tree->root||!key) return NULL;
+  
+  TreeNode *current= tree->root;
+
+  while (current)
+  {
+    int cmp = tree->cmp(key,current->data);
+    if(cmp == 0) {
+      return current->data;
+    }
+    current = (cmp<0) ? current->left : current->right;
+  }
+  return NULL;
+  
+}
+
+// public inorder tree traversall with custom print function
+void inorderBST(BinaryTree *tree, void (*printFunc)(const void *)) {
+    if (!tree || !printFunc) return;
+    inorderNode(tree->root, printFunc);
+}
+
+// public destroy the tree
+void destroyTree(TreeNode *root,FreeFunc destroy) {
+  if(root == NULL) return;
+
+  destroyTree(root->left,destroy); // left
+
+  destroyTree(root->right,destroy); // right
+
+  if(destroy) 
+    destroy(root->data);
+
+  free(root);
+}
+
+// delet item from tree
 int deleteBST(BinaryTree* tree,const void* key){
   if(!tree || !tree->root) return 0;
 
   tree->root = deleteNode(tree->root,key,tree->cmp,tree->destroy);
   return 1;
 }
-

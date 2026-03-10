@@ -1,15 +1,12 @@
 #ifndef BINARYTREE_H
 #define BINARYTREE_H
 
-#include <stdio.h>
-#include <stdlib.h>
-
-// Function Pointers:
+// Function Pointers (for making this binary tree for stations and for car):
 typedef int (*CompareFunc)(const void *, const void *);
 typedef void (*PrintFunc)(const void *);
 typedef void (*FreeFunc)(void *);
 
-// TreeNode
+// STRUCT & Enums declarations
 typedef struct TreeNode
 {
   struct TreeNode *left;
@@ -17,45 +14,21 @@ typedef struct TreeNode
   void *data;
 } TreeNode;
 
-// configiration for binary tree
-
 typedef struct BinaryTree
 {
   TreeNode *root;
-  
+
   CompareFunc cmp;
   PrintFunc print;
   FreeFunc destroy;
 } BinaryTree;
 
-// Functions
-// init a BinaryTree with function pointers
+// FUNCTIONS
 BinaryTree initTree(CompareFunc cmp, PrintFunc print, FreeFunc destroy);
-// 
-// insert data to the tree
-TreeNode *insertNode(TreeNode *root, void *data, CompareFunc cmp);
-// 
-// insert data
-int insertBST(BinaryTree *bst, void *data);
-// 
-// count nodes
-int countNodes(TreeNode *root);
-// 
-// destroy the tree
-void destroyTree(TreeNode *root, FreeFunc destroy);
-// 
-// search data
+int insertBST(BinaryTree *tree, void *data);
 void *searchBST(BinaryTree *tree, const void *key);
-// 
-// inorder traversal with print function
+void destroyTree(TreeNode *root, FreeFunc destroy);
 void inorderBST(BinaryTree *tree, void (*printFunc)(const void *));
-// 
-// find maximum node with custom cmp function
-void* findMaxData(TreeNode* root, CompareFunc cmp);
-// 
-// Remove Node from tree
 int deleteBST(BinaryTree* tree,const void* key);
-// 
 
-
-#endif // BINARYTREE_H
+#endif

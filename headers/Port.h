@@ -1,17 +1,14 @@
 #ifndef PORT_H
 #define PORT_H
 
-
 #include "Utilis.h"
+#include "Station.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
+// STRUCT & Enums declarations
 typedef struct Car Car;
-typedef struct Station Station;
-
 typedef struct Port Port;
+
 struct Port
 {
   unsigned int num;
@@ -22,50 +19,31 @@ struct Port
   struct Port *next;
 };
 
-// functions
+// using while loading files
+typedef struct 
+{
+  Port* port;
+  unsigned int stationId;
+  char license[LICENSE_SIZE];
+} PortTempData;
 
-// crate new port
-Port *createPort(unsigned int num, PortType type, PortStatus status, Date t);
 
-// insert port to the head of the list
-Port *insertPort(Port *head, Port *newPort);
-
-// assign car2Port
-BOOL assignCar2Port(Port *port, Car *car, Date date);
-// unlink carPort
-void unlinkCarPort(Car* car, double bill);
-void tryAssignNextCarFromQueue(Station *station, Port *port, Date now);
-
-// find port by num
+// FUNCTIONS
+Port *createPort(unsigned int num, PortType type,PortStatus status,Date t);
+Port *insertPort(Port* head, Port*newPort);
 Port *findPort(Port *head, unsigned int num);
-
-int getOutOrderPortNum(Port *port);
-
+void destroyPort(void *data);
+void destroyPortList(Port *head);
+void printPort(const Port* port);
+void printPortList(Port *head);
+void* Port_parseLine(const char*line);
+int countFreePorts(const Port* head);
+BOOL assignCar2Port(Port* port, Car* car, Date startTime);
+void unlinkCarPort(Car* car, double bill);
+BOOL isCompatiblePortType(PortType carType, PortType portType);
+BOOL isPortAvailable(Port* port);
+void tryAssignNextCarFromQueue(Station *station, Port *port, Date now);
+int getNextPortNum(Station* station);
 void removePortFromStation(Station *station, unsigned int portNum);
 
-void printPortList(Port *head);
-void printPort(const Port *port);
-
-// destroy list
-void destroyPortList(Port *head);
-void destroyPort(void *data);
-
-// count free ports
-int countFreePorts(const Port *head);
-
-BOOL isCompatiblePortType(PortType carType, PortType portType);
-
-
-BOOL isPortAvailable(Port *port);
-
-// validate port
-BOOL isPortTypeValid(const char *pTypeKey);
-
-int calculateChargeTime(Port* port);
-
-// find available port
-// Port *findAvailablePort(Port *portList, PortType type);
-
-// get next available port num at station
-int getNextPortNum(Station* station);
 #endif

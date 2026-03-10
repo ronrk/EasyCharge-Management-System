@@ -3,37 +3,27 @@
 
 #include "Utilis.h"
 
+// STRUCT & Enums declarations
 typedef struct Car Car;
-typedef struct CarNode CarNode;
-typedef struct qCar qCar;
-
-struct CarNode
+typedef struct CarNode
 {
   Car *data;
   struct CarNode *next;
-};
+} CarNode;
 
-struct qCar
+typedef struct qCar
 {
   CarNode *front;
   CarNode *rear;
-};
+} qCar;
 
-// funcytions
-void initQueue(qCar *queue);
-
+// FUNCTIONS
 qCar *createQueue();
-void destroyQueue(qCar *queue);
-
-int isEmpty(const qCar *queue);
 BOOL enqueue(qCar *queue, Car *car);
-Car *dequeue(qCar *queue);
-
-Car *dequeueByPortType(qCar *queue, PortType portType);
-
+void destroyQueue(qCar*queue);
+int isEmpty(const qCar *queue);
 Car *getFront(const qCar *queue);
-void printQueue(const qCar *queue);
+int countQueueItems(const qCar* queue);
+Car* dequeueByPortType(qCar* queue,PortType portType);
 
-// count queue items
-int countQueueItems(const qCar *queue);
 #endif
